@@ -28,6 +28,8 @@
   <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
+  <div class="cotacao" id="ibov">Ibovespa: carregando...</div>
+  <div class="cotacao" id="ifix">IFIX: carregando...</div>
 
   <script>
     async function fetchCotacoes() {
@@ -52,6 +54,33 @@
       } catch (error) {
         console.error('Erro ao buscar cotação do Dólar:', error);
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro ao carregar.';
+      }
+
+      try {
+        // Ibovespa e IFIX (AwesomeAPI) - separando chamadas para tentar minimizar erro
+        const ibovResponse = await fetch('https://economia.awesomeapi.com.br/json/last/IBOV');
+        const ibovData = await ibovResponse.json();
+        if (ibovData.IBOV && ibovData.IBOV.bid) {
+          document.getElementById('ibov').innerText = `Ibovespa: ${parseFloat(ibovData.IBOV.bid).toLocaleString('pt-BR')} pts`;
+        } else {
+          document.getElementById('ibov').innerText = 'Ibovespa: dados não disponíveis.';
+        }
+      } catch (error) {
+        console.error('Erro ao buscar cotação do Ibovespa:', error);
+        document.getElementById('ibov').innerText = 'Ibovespa: erro ao carregar.';
+      }
+
+      try {
+        const ifixResponse = await fetch('https://economia.awesomeapi.com.br/json/last/IFIX');
+        const ifixData = await ifixResponse.json();
+        if (ifixData.IFIX && ifixData.IFIX.bid) {
+          document.getElementById('ifix').innerText = `IFIX: ${parseFloat(ifixData.IFIX.bid).toLocaleString('pt-BR')} pts`;
+        } else {
+          document.getElementById('ifix').innerText = 'IFIX: dados não disponíveis.';
+        }
+      } catch (error) {
+        console.error('Erro ao buscar cotação do IFIX:', error);
+        document.getElementById('ifix').innerText = 'IFIX: erro ao carregar.';
       }
     }
 
