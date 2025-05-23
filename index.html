@@ -2,88 +2,66 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cotações Financeiras</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cotação IFIX via scraping com proxy</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2em;
-      background: #f2f2f2;
+      background: #f9f9f9;
     }
     h1 {
       color: #333;
     }
-    .cotacao {
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    #ifix {
+      margin-top: 1em;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #007700;
     }
   </style>
 </head>
 <body>
-  <h1>📈 Cotações Atualizadas</h1>
-
-  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
-  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
-  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-  <div class="cotacao" id="ibov">Ibovespa: carregando...</div>
-  <div class="cotacao" id="ifix">IFIX: carregando...</div>
+  <h1>Cotação do IFIX (via scraping)</h1>
+  <div id="ifix">Carregando...</div>
 
   <script>
-    async function fetchCotacoes() {
+    async function fetchIFIX() {
+      const proxyUrl = 'https://api.allorigins.win/get?url='; // proxy grátis para contornar CORS
+      const targetUrl = encodeURIComponent('https://investidor10.com.br/indices/ifix/');
       try {
-        // Bitcoin em USD e BRL (CoinGecko)
-        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-        const btcData = await btcResponse.json();
-        document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
-        document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
-      } catch (error) {
-        console.error('Erro ao buscar cotação do Bitcoin:', error);
-        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro ao carregar.';
-        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro ao carregar.';
-      }
+        const response = await fetch(proxyUrl + targetUrl);
+        if (!response.ok) throw new Error('Erro na requisição proxy');
 
-      try {
-        // Dólar (USD/BRL) (AwesomeAPI)
-        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const usdData = await usdResponse.json();
-        const usd = usdData.USDBRL;
-        document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
-      } catch (error) {
-        console.error('Erro ao buscar cotação do Dólar:', error);
-        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro ao carregar.';
-      }
+        const data = await response.json();
+        const htmlText = data.contents;
 
-      try {
-        // Ibovespa e IFIX (BrAPI)
-        const indicesResponse = await fetch('https://brapi.dev/api/indices');
-        const indicesData = await indicesResponse.json();
+        // Parse do HTML retornado
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
 
-        const ibovIndex = indicesData.results.find(i => i.index === 'IBOV');
-        const ifixIndex = indicesData.results.find(i => i.index === 'IFIX');
+        // Inspecione a página https://investidor10.com.br/indices/ifix/ para achar o seletor correto
+        // Exemplo: A cotação está dentro de uma tag <span class="price"> (só exemplo, verifique no site real)
+        // Aqui vamos buscar o seletor correto pelo site no momento (confira para ajustar)
+        
+        // No momento da minha última verificação, a cotação do IFIX está dentro de:
+        // <div class="indice-header-price"> <span class="price">valor</span> </div>
+        // Vamos tentar isso:
 
-        if (ibovIndex && ibovIndex.lastPrice) {
-          document.getElementById('ibov').innerText = `Ibovespa: ${ibovIndex.lastPrice.toLocaleString('pt-BR')} pts`;
+        const priceSpan = doc.querySelector('.indice-header-price .price');
+        if (priceSpan) {
+          document.getElementById('ifix').innerText = 'IFIX: ' + priceSpan.textContent.trim();
         } else {
-          document.getElementById('ibov').innerText = 'Ibovespa: dados não disponíveis.';
-        }
-
-        if (ifixIndex && ifixIndex.lastPrice) {
-          document.getElementById('ifix').innerText = `IFIX: ${ifixIndex.lastPrice.toLocaleString('pt-BR')} pts`;
-        } else {
-          document.getElementById('ifix').innerText = 'IFIX: dados não disponíveis.';
+          document.getElementById('ifix').innerText = 'Cotação do IFIX não encontrada.';
         }
 
       } catch (error) {
-        console.error('Erro ao buscar Ibovespa e IFIX:', error);
-        document.getElementById('ibov').innerText = 'Ibovespa: erro ao carregar.';
-        document.getElementById('ifix').innerText = 'IFIX: erro ao carregar.';
+        document.getElementById('ifix').innerText = 'Erro ao carregar cotação.';
+        console.error('Erro:', error);
       }
     }
 
-    fetchCotacoes();
+    fetchIFIX();
   </script>
 </body>
 </html>
