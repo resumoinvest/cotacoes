@@ -30,6 +30,7 @@
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
   <div class="cotacao" id="ibov">IBOVESPA: carregando...</div>
   <div class="cotacao" id="ifix">IFIX: carregando...</div>
+  <div class="cotacao" id="kncr11">KNCR11: carregando...</div>
 
   <script>
     const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
@@ -70,7 +71,7 @@
         document.getElementById('ibov').innerText = 'IBOVESPA: erro';
       }
 
-      // IFIX (tentativa com IFIX.SA)
+      // IFIX (Alpha Vantage)
       try {
         const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
         const ifixData = await ifixResp.json();
@@ -80,6 +81,17 @@
       } catch (error) {
         console.error('Erro IFIX:', error);
         document.getElementById('ifix').innerText = 'IFIX: erro ou símbolo inválido';
+      }
+
+      // KNCR11 (Yahoo Finance)
+      try {
+        const kncrResp = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/KNCR11.SA");
+        const kncrData = await kncrResp.json();
+        const preco = parseFloat(kncrData.chart.result[0].meta.regularMarketPrice).toFixed(2);
+        document.getElementById('kncr11').innerText = `KNCR11: R$${preco}`;
+      } catch (error) {
+        console.error("Erro KNCR11:", error);
+        document.getElementById('kncr11').innerText = "KNCR11: erro ao buscar";
       }
     }
 
