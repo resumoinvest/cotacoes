@@ -57,29 +57,28 @@
       }
 
       try {
-        // Ibovespa e IFIX (AwesomeAPI) - separando chamadas para tentar minimizar erro
-        const ibovResponse = await fetch('https://economia.awesomeapi.com.br/json/last/IBOV');
-        const ibovData = await ibovResponse.json();
-        if (ibovData.IBOV && ibovData.IBOV.bid) {
-          document.getElementById('ibov').innerText = `Ibovespa: ${parseFloat(ibovData.IBOV.bid).toLocaleString('pt-BR')} pts`;
+        // Ibovespa e IFIX (BrAPI)
+        const indicesResponse = await fetch('https://brapi.dev/api/indices');
+        const indicesData = await indicesResponse.json();
+
+        const ibovIndex = indicesData.results.find(i => i.index === 'IBOV');
+        const ifixIndex = indicesData.results.find(i => i.index === 'IFIX');
+
+        if (ibovIndex && ibovIndex.lastPrice) {
+          document.getElementById('ibov').innerText = `Ibovespa: ${ibovIndex.lastPrice.toLocaleString('pt-BR')} pts`;
         } else {
           document.getElementById('ibov').innerText = 'Ibovespa: dados não disponíveis.';
         }
-      } catch (error) {
-        console.error('Erro ao buscar cotação do Ibovespa:', error);
-        document.getElementById('ibov').innerText = 'Ibovespa: erro ao carregar.';
-      }
 
-      try {
-        const ifixResponse = await fetch('https://economia.awesomeapi.com.br/json/last/IFIX');
-        const ifixData = await ifixResponse.json();
-        if (ifixData.IFIX && ifixData.IFIX.bid) {
-          document.getElementById('ifix').innerText = `IFIX: ${parseFloat(ifixData.IFIX.bid).toLocaleString('pt-BR')} pts`;
+        if (ifixIndex && ifixIndex.lastPrice) {
+          document.getElementById('ifix').innerText = `IFIX: ${ifixIndex.lastPrice.toLocaleString('pt-BR')} pts`;
         } else {
           document.getElementById('ifix').innerText = 'IFIX: dados não disponíveis.';
         }
+
       } catch (error) {
-        console.error('Erro ao buscar cotação do IFIX:', error);
+        console.error('Erro ao buscar Ibovespa e IFIX:', error);
+        document.getElementById('ibov').innerText = 'Ibovespa: erro ao carregar.';
         document.getElementById('ifix').innerText = 'IFIX: erro ao carregar.';
       }
     }
