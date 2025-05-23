@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BitcoinApp - Cotações</title>
+  <title>@Resumo Invest - Cotações</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,35 +16,49 @@
       padding: 20px;
       margin: 10px auto;
       border-radius: 10px;
-      width: 300px;
+      width: 320px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1.1em;
     }
     .social-links a {
       margin: 0 10px;
       text-decoration: none;
       font-weight: bold;
-      color: #333;
+      color: blue;
     }
     .social-links a:hover {
-      color: #0077cc;
+      color: darkblue;
+    }
+    #ultima-atualizacao {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #333;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
-  <h1>BitcoinApp - Cotações Atualizadas</h1>
+  <h1>@Resumo Invest - Cotações Atualizadas</h1>
   
   <div class="card" id="bitcoin">Bitcoin: Carregando...</div>
   <div class="card" id="dolar">Dólar: Carregando...</div>
   <div class="card" id="ibovespa">Ibovespa: Carregando...</div>
+  <div class="card" id="ifix">IFIX: Carregando...</div>
+
+  <div id="ultima-atualizacao">Última atualização: --:--:--</div>
 
   <div class="social-links">
-    <p>Siga: 
-      <a href="https://instagram.com/resumo.invest" target="_blank" rel="noopener noreferrer">Instagram</a>
-      <a href="https://t.me/resumo_invest" target="_blank" rel="noopener noreferrer">Telegram</a>
+    <p>Siga: <br>
+      <a href="https://www.youtube.com/@Resumo.invest" target="_blank" rel="noopener noreferrer">YouTube</a><br>
+      <a href="https://www.tiktok.com/@resumo.invest" target="_blank" rel="noopener noreferrer">TikTok</a>
     </p>
   </div>
 
   <script>
+    function formatarHora(date) {
+      return date.toLocaleTimeString('pt-BR', { hour12: false });
+    }
+
     async function buscarBitcoin() {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl');
@@ -78,8 +92,25 @@
       }
     }
 
+    async function buscarIfix() {
+      try {
+        const res = await fetch('https://economia.awesomeapi.com.br/json/last/IFIX');
+        const json = await res.json();
+        if(json.IFIX && json.IFIX.bid) {
+          const valor = parseFloat(json.IFIX.bid).toLocaleString('pt-BR');
+          document.getElementById('ifix').innerText = `IFIX: ${valor} pts`;
+        } else {
+          document.getElementById('ifix').innerText = 'IFIX: erro ao carregar';
+        }
+      } catch {
+        document.getElementById('ifix').innerText = 'IFIX: erro ao carregar';
+      }
+    }
+
     async function atualizarCotacoes() {
-      await Promise.all([buscarBitcoin(), buscarDolar(), buscarIbovespa()]);
+      await Promise.all([buscarBitcoin(), buscarDolar(), buscarIbovespa(), buscarIfix()]);
+      const agora = new Date();
+      document.getElementById('ultima-atualizacao').innerText = `Última atualização: ${formatarHora(agora)}`;
     }
 
     atualizarCotacoes();
