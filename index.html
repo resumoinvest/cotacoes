@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title> @Resumo Invest </title>
+  <title>Cotações Financeiras</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,6 +20,19 @@
       margin-bottom: 1em;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
+    .rodape {
+      margin-top: 2em;
+      text-align: center;
+    }
+    .rodape a {
+      display: block;
+      color: blue;
+      text-decoration: none;
+      margin: 5px 0;
+    }
+    .rodape a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -28,8 +41,12 @@
   <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-  <div class="cotacao" id="ibov">IBOVESPA: carregando...</div>
   <div class="cotacao" id="ifix">IFIX: carregando...</div>
+
+  <div class="rodape">
+    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">YouTube</a>
+    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">TikTok</a>
+  </div>
 
   <script>
     const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
@@ -58,19 +75,7 @@
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
 
-      // IBOVESPA (Alpha Vantage)
-      try {
-        const ibovResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=^BVSP&apikey=${ALPHA_KEY}`);
-        const ibovData = await ibovResp.json();
-        const ultimoDia = Object.keys(ibovData['Time Series (Daily)'])[0];
-        const valorIbov = parseFloat(ibovData['Time Series (Daily)'][ultimoDia]['4. close']).toFixed(2);
-        document.getElementById('ibov').innerText = `IBOVESPA: ${valorIbov}`;
-      } catch (error) {
-        console.error('Erro IBOV:', error);
-        document.getElementById('ibov').innerText = 'IBOVESPA: erro';
-      }
-
-      // IFIX (tentativa com IFIX.SA)
+      // IFIX (Alpha Vantage)
       try {
         const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
         const ifixData = await ifixResp.json();
