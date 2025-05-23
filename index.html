@@ -2,66 +2,68 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cotação IFIX via scraping com proxy</title>
+  <title>Cotações IFIX e IBOV (scraping via proxy)</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f9f9f9;
-    }
-    h1 {
-      color: #333;
-    }
-    #ifix {
-      margin-top: 1em;
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #007700;
-    }
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f0f0f0; }
+    h1 { color: #333; }
+    .cotacao { background: #fff; padding: 1em; margin-bottom: 1em; border-radius: 5px; box-shadow: 0 0 5px #ccc; }
   </style>
 </head>
 <body>
-  <h1>Cotação do IFIX (via scraping)</h1>
-  <div id="ifix">Carregando...</div>
+  <h1>Cotações via scraping</h1>
+  <div id="ibov" class="cotacao">Ibovespa: carregando...</div>
+  <div id="ifix" class="cotacao">IFIX: carregando...</div>
 
   <script>
-    async function fetchIFIX() {
-      const proxyUrl = 'https://api.allorigins.win/get?url='; // proxy grátis para contornar CORS
-      const targetUrl = encodeURIComponent('https://investidor10.com.br/indices/ifix/');
+    async function fetchCotacoes() {
+      const proxyUrl = 'https://api.allorigins.win/get?url=';
+      const url = encodeURIComponent('https://statusinvest.com.br/indices');
+
       try {
-        const response = await fetch(proxyUrl + targetUrl);
-        if (!response.ok) throw new Error('Erro na requisição proxy');
+        const res = await fetch(proxyUrl + url);
+        if (!res.ok) throw new Error('Erro na requisição proxy');
 
-        const data = await response.json();
-        const htmlText = data.contents;
+        const data = await res.json();
+        const html = data.contents;
 
-        // Parse do HTML retornado
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
+        const doc = parser.parseFromString(html, 'text/html');
 
-        // Inspecione a página https://investidor10.com.br/indices/ifix/ para achar o seletor correto
-        // Exemplo: A cotação está dentro de uma tag <span class="price"> (só exemplo, verifique no site real)
-        // Aqui vamos buscar o seletor correto pelo site no momento (confira para ajustar)
-        
-        // No momento da minha última verificação, a cotação do IFIX está dentro de:
-        // <div class="indice-header-price"> <span class="price">valor</span> </div>
-        // Vamos tentar isso:
+        // No site statusinvest, a cotação do Ibovespa está dentro de:
+        // <div class="index-value">XXXXX,XX</div> para o índice ibovespa
+        // Precisamos achar o bloco certo, com base em texto.
 
-        const priceSpan = doc.querySelector('.indice-header-price .price');
-        if (priceSpan) {
-          document.getElementById('ifix').innerText = 'IFIX: ' + priceSpan.textContent.trim();
-        } else {
-          document.getElementById('ifix').innerText = 'Cotação do IFIX não encontrada.';
+        // Pegando os cards dos indices
+        const cards = [...doc.querySelectorAll('.index-card')];
+
+        // Função para extrair valor pelo nome do índice
+        function getIndexValue(name) {
+          for (const card of cards) {
+            const title = card.querySelector('.index-name');
+            if (title && title.textContent.trim().toUpperCase() === name) {
+              const valueEl = card.querySelector('.index-value');
+              if (valueEl) {
+                return valueEl.textContent.trim();
+              }
+            }
+          }
+          return null;
         }
 
+        const ibov = getIndexValue('IBOVESPA');
+        const ifix = getIndexValue('IFIX');
+
+        document.getElementById('ibov').innerText = ibov ? `Ibovespa: ${ibov}` : 'Ibovespa: não encontrado.';
+        document.getElementById('ifix').innerText = ifix ? `IFIX: ${ifix}` : 'IFIX: não encontrado.';
+
       } catch (error) {
-        document.getElementById('ifix').innerText = 'Erro ao carregar cotação.';
-        console.error('Erro:', error);
+        document.getElementById('ibov').innerText = 'Erro ao carregar Ibovespa.';
+        document.getElementById('ifix').innerText = 'Erro ao carregar IFIX.';
+        console.error(error);
       }
     }
 
-    fetchIFIX();
+    fetchCotacoes();
   </script>
 </body>
 </html>
