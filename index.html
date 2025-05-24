@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Resumo Invest</title>
   <style>
     body {
@@ -41,16 +41,6 @@
       font-weight: bold;
       color: #555;
     }
-    #noticias a {
-      color: blue;
-      text-decoration: none;
-    }
-    #noticias a:hover {
-      text-decoration: underline;
-    }
-    #noticias div {
-      margin-bottom: 10px;
-    }
   </style>
 </head>
 <body>
@@ -71,7 +61,7 @@
   </div>
 
   <script>
-    // --- Cotação de Bitcoin e Dólar ---
+    // 🔸 Cotação de Bitcoin e Dólar
     async function fetchCotacoes() {
       try {
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
@@ -94,27 +84,10 @@
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
     }
+
     fetchCotacoes();
 
-    // --- Função para converter XML string em Document ---
-    function parseXML(text) {
-      return new window.DOMParser().parseFromString(text, "application/xml");
-    }
-
-    // --- Filtra notícias por categorias relevantes ---
-    function filtrarNoticias(items) {
-      const keywords = [
-        'política', 'economia', 'bolsa', 'fundos', 'imobiliária', 'finanças', 'mercado', 'ações', 'investimento', 'internacional'
-      ];
-      return items.filter(item => {
-        const title = item.querySelector('title')?.textContent.toLowerCase() || '';
-        const description = item.querySelector('description')?.textContent.toLowerCase() || '';
-        // Verifica se alguma palavra-chave aparece no título ou na descrição
-        return keywords.some(k => title.includes(k) || description.includes(k));
-      });
-    }
-
-    // --- Busca e exibe notícias usando proxy ---
+    // 🔸 Notícias financeiras InfoMoney via proxy local
     async function carregarNoticias() {
       const feeds = [
         'https://www.infomoney.com.br/economia/feed/',
@@ -123,43 +96,50 @@
       ];
 
       try {
-        // Buscar todos os feeds via proxy
-        const respostas = await Promise.all(feeds.map(feed =>
-          fetch(`http://localhost:3000/proxy-feed?url=${encodeURIComponent(feed)}`).then(r => r.text())
+        // Para cada feed, chama o proxy local que busca o feed original
+        const respostas = await Promise.all(feeds.map(feedUrl =>
+          fetch(`http://localhost:3000/proxy-feed?url=${encodeURIComponent(feedUrl)}`).then(r => r.text())
         ));
 
-        // Parse XML de cada resposta
+        // Parse dos feeds XML para extrair items manualmente (simplificado)
         let todasNoticias = [];
         respostas.forEach(xmlString => {
-          const xmlDoc = parseXML(xmlString);
-          const items = Array.from(xmlDoc.querySelectorAll('item'));
-          todasNoticias = todasNoticias.concat(items);
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+          const items = xmlDoc.querySelectorAll("item");
+          items.forEach(item => {
+            const title = item.querySelector("title")?.textContent || '';
+            const link = item.querySelector("link")?.textContent || '';
+            const pubDate = item.querySelector("pubDate")?.textContent || '';
+            const category = item.querySelector("category")?.textContent || '';
+            todasNoticias.push({ title, link, pubDate, category });
+          });
         });
 
-        // Filtra notícias só das categorias desejadas
-        const noticiasFiltradas = filtrarNoticias(todasNoticias);
+        // Filtrar só categorias de finanças relevantes (economia, mercado, bolsa, fundos, imóveis)
+        const categoriasValidas = [
+          'Economia', 'Mercado', 'Bolsa', 'Fundos', 'Imóveis', 'Imobiliário', 'Financeiro', 'Financeira', 'Investimentos', 'Ações', 'Internacional'
+        ];
 
-        // Ordena por data (mais recente primeiro)
-        noticiasFiltradas.sort((a, b) => {
-          const dateA = new Date(a.querySelector('pubDate')?.textContent);
-          const dateB = new Date(b.querySelector('pubDate')?.textContent);
-          return dateB - dateA;
+        todasNoticias = todasNoticias.filter(noticia => {
+          if (!noticia.category) return true; // se não tem categoria, mantém para não perder
+          return categoriasValidas.some(cat => noticia.category.toLowerCase().includes(cat.toLowerCase()));
         });
 
-        // Pega as 10 primeiras
-        const noticiasTop10 = noticiasFiltradas.slice(0, 10);
+        // Ordenar por data (mais recente primeiro)
+        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        if (noticiasTop10.length === 0) {
-          document.getElementById('noticias').innerText = 'Nenhuma notícia financeira encontrada.';
-          return;
-        }
+        // Pegar as 10 primeiras
+        const noticias = todasNoticias.slice(0, 10);
 
-        // Monta HTML
-        const html = noticiasTop10.map(item => {
-          const title = item.querySelector('title')?.textContent || 'Sem título';
-          const link = item.querySelector('link')?.textContent || '#';
-          return `<div><a href="${link}" target="_blank">👉 ${title}</a></div>`;
-        }).join('');
+        // Montar HTML das notícias
+        const html = noticias.map(noticia => `
+          <div style="margin-bottom: 10px;">
+            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
+              👉 ${noticia.title}
+            </a>
+          </div>
+        `).join('');
 
         document.getElementById('noticias').innerHTML = html;
 
@@ -168,15 +148,17 @@
         document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
       }
     }
+
     carregarNoticias();
 
-    // --- Relógio com data e hora ---
+    // 🔸 Relógio com data e hora
     function atualizarRelogio() {
       const agora = new Date();
       const data = agora.toLocaleDateString('pt-BR');
       const hora = agora.toLocaleTimeString('pt-BR');
       document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
     }
+
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
   </script>
