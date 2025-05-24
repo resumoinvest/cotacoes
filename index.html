@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Resumo Invest</title>
   <style>
     body {
@@ -41,6 +41,16 @@
       font-weight: bold;
       color: #555;
     }
+    #noticias a {
+      color: blue;
+      text-decoration: none;
+    }
+    #noticias a:hover {
+      text-decoration: underline;
+    }
+    #noticias div {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -61,7 +71,7 @@
   </div>
 
   <script>
-    // 🔸 Cotação de Bitcoin e Dólar
+    // --- Cotação de Bitcoin e Dólar ---
     async function fetchCotacoes() {
       try {
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
@@ -84,10 +94,27 @@
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
     }
-
     fetchCotacoes();
 
-    // 🔸 Notícias financeiras InfoMoney
+    // --- Função para converter XML string em Document ---
+    function parseXML(text) {
+      return new window.DOMParser().parseFromString(text, "application/xml");
+    }
+
+    // --- Filtra notícias por categorias relevantes ---
+    function filtrarNoticias(items) {
+      const keywords = [
+        'política', 'economia', 'bolsa', 'fundos', 'imobiliária', 'finanças', 'mercado', 'ações', 'investimento', 'internacional'
+      ];
+      return items.filter(item => {
+        const title = item.querySelector('title')?.textContent.toLowerCase() || '';
+        const description = item.querySelector('description')?.textContent.toLowerCase() || '';
+        // Verifica se alguma palavra-chave aparece no título ou na descrição
+        return keywords.some(k => title.includes(k) || description.includes(k));
+      });
+    }
+
+    // --- Busca e exibe notícias usando proxy ---
     async function carregarNoticias() {
       const feeds = [
         'https://www.infomoney.com.br/economia/feed/',
@@ -95,58 +122,61 @@
         'https://www.infomoney.com.br/imoveis/feed/'
       ];
 
-      const palavrasChave = [
-        'bolsa', 'mercado', 'ações', 'fundos', 'juros', 'inflação',
-        'selic', 'ipca', 'investimento', 'dólar', 'imóveis', 'commodities',
-        'fed', 'economia', 'nasdaq', 'dow jones', 'ibovespa', 'internacional'
-      ];
-
       try {
-        const requisicoes = feeds.map(url =>
-          fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`).then(r => r.json())
-        );
+        // Buscar todos os feeds via proxy
+        const respostas = await Promise.all(feeds.map(feed =>
+          fetch(`http://localhost:3000/proxy-feed?url=${encodeURIComponent(feed)}`).then(r => r.text())
+        ));
 
-        const resultados = await Promise.all(requisicoes);
-
-        let todasNoticias = resultados.flatMap(r => r.items);
-
-        // 🔍 Filtro por palavras-chave no título
-        todasNoticias = todasNoticias.filter(noticia => {
-          const texto = `${noticia.title} ${noticia.description}`.toLowerCase();
-          return palavrasChave.some(palavra => texto.includes(palavra));
+        // Parse XML de cada resposta
+        let todasNoticias = [];
+        respostas.forEach(xmlString => {
+          const xmlDoc = parseXML(xmlString);
+          const items = Array.from(xmlDoc.querySelectorAll('item'));
+          todasNoticias = todasNoticias.concat(items);
         });
 
-        // Ordenar por data
-        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        // Filtra notícias só das categorias desejadas
+        const noticiasFiltradas = filtrarNoticias(todasNoticias);
 
-        // Pegar as 10 primeiras
-        const noticias = todasNoticias.slice(0, 10);
+        // Ordena por data (mais recente primeiro)
+        noticiasFiltradas.sort((a, b) => {
+          const dateA = new Date(a.querySelector('pubDate')?.textContent);
+          const dateB = new Date(b.querySelector('pubDate')?.textContent);
+          return dateB - dateA;
+        });
 
-        const html = noticias.map(noticia => `
-          <div style="margin-bottom: 10px;">
-            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-              👉 ${noticia.title}
-            </a>
-          </div>
-        `).join('');
+        // Pega as 10 primeiras
+        const noticiasTop10 = noticiasFiltradas.slice(0, 10);
 
-        document.getElementById('noticias').innerHTML = html || 'Nenhuma notícia relevante no momento.';
+        if (noticiasTop10.length === 0) {
+          document.getElementById('noticias').innerText = 'Nenhuma notícia financeira encontrada.';
+          return;
+        }
+
+        // Monta HTML
+        const html = noticiasTop10.map(item => {
+          const title = item.querySelector('title')?.textContent || 'Sem título';
+          const link = item.querySelector('link')?.textContent || '#';
+          return `<div><a href="${link}" target="_blank">👉 ${title}</a></div>`;
+        }).join('');
+
+        document.getElementById('noticias').innerHTML = html;
+
       } catch (error) {
         console.error('Erro ao carregar notícias:', error);
         document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
       }
     }
-
     carregarNoticias();
 
-    // 🔸 Relógio com data e hora
+    // --- Relógio com data e hora ---
     function atualizarRelogio() {
       const agora = new Date();
       const data = agora.toLocaleDateString('pt-BR');
       const hora = agora.toLocaleTimeString('pt-BR');
       document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
     }
-
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
   </script>
