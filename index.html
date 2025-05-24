@@ -1,145 +1,88 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resumo Invest Cotações</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f2f2f2;
-    }
-    h1 {
-      color: #333;
-    }
-    .cotacao {
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .icone {
-      font-size: 20px;
-    }
-    .alta {
-      color: green;
-    }
-    .baixa {
-      color: red;
-    }
-    .rodape {
-      margin-top: 2em;
-      text-align: center;
-    }
-    .rodape a {
-      display: block;
-      color: blue;
-      text-decoration: none;
-      margin: 5px 0;
-    }
-    .rodape a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1>📈 @Resumo.invest</h1>
+<script>
+  const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
 
-  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
-  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
-  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-  <div class="cotacao" id="ifix">IFIX: carregando...</div>
-
-  <div class="rodape">
-    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
-    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
-  </div>
-
-  <script>
-    const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
-
-    // Armazena os valores anteriores para comparar
-    const cotacoesAnteriores = {
+  function carregarCotacoesAnteriores() {
+    const dados = localStorage.getItem('cotacoesAnteriores');
+    return dados ? JSON.parse(dados) : {
       btcUsd: null,
       btcBrl: null,
       usdBrl: null,
       ifix: null
     };
+  }
 
-    function gerarHTMLComIcone(nome, valorAtual, valorAnterior, simbolo) {
-      let direcao = '';
+  function salvarCotacoesAnteriores(cotacoes) {
+    localStorage.setItem('cotacoesAnteriores', JSON.stringify(cotacoes));
+  }
 
-      if (valorAnterior === null) {
-        direcao = `<span class="icone">⏺️</span>`; // Primeira vez, sem comparação
-      } else if (valorAtual > valorAnterior) {
-        direcao = `<span class="icone alta">🔼</span>`;
-      } else if (valorAtual < valorAnterior) {
-        direcao = `<span class="icone baixa">🔽</span>`;
-      } else {
-        direcao = `<span class="icone">⏺️</span>`;
-      }
+  let cotacoesAnteriores = carregarCotacoesAnteriores();
 
-      return `${direcao} ${nome}: ${simbolo}${valorAtual}`;
+  function gerarHTMLComIcone(nome, valorAtual, valorAnterior, simbolo) {
+    let direcao = '';
+
+    if (valorAnterior === null) {
+      direcao = `<span class="icone">⏺️</span>`;
+    } else if (valorAtual > valorAnterior) {
+      direcao = `<span class="icone alta">🔼</span>`;
+    } else if (valorAtual < valorAnterior) {
+      direcao = `<span class="icone baixa">🔽</span>`;
+    } else {
+      direcao = `<span class="icone">⏺️</span>`;
     }
 
-    async function fetchCotacoes() {
-      // 🔸 Bitcoin (CoinGecko)
-      try {
-        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-        const btcData = await btcResponse.json();
+    return `${direcao} ${nome}: ${simbolo}${valorAtual}`;
+  }
 
-        const btcUsd = btcData.bitcoin.usd;
-        const btcBrl = btcData.bitcoin.brl;
+  async function fetchCotacoes() {
+    try {
+      // 🔸 Bitcoin
+      const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
+      const btcData = await btcResponse.json();
 
-        document.getElementById('btc-usd').innerHTML = gerarHTMLComIcone('Bitcoin (USD)', btcUsd, cotacoesAnteriores.btcUsd, '$');
-        document.getElementById('btc-brl').innerHTML = gerarHTMLComIcone('Bitcoin (BRL)', btcBrl.toLocaleString('pt-BR'), cotacoesAnteriores.btcBrl, 'R$');
+      const btcUsd = btcData.bitcoin.usd;
+      const btcBrl = btcData.bitcoin.brl;
 
-        cotacoesAnteriores.btcUsd = btcUsd;
-        cotacoesAnteriores.btcBrl = btcBrl;
-      } catch (error) {
-        console.error('Erro Bitcoin:', error);
-        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
-        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
-      }
+      document.getElementById('btc-usd').innerHTML = gerarHTMLComIcone('Bitcoin (USD)', btcUsd, cotacoesAnteriores.btcUsd, '$');
+      document.getElementById('btc-brl').innerHTML = gerarHTMLComIcone('Bitcoin (BRL)', btcBrl.toLocaleString('pt-BR'), cotacoesAnteriores.btcBrl, 'R$');
 
-      // 🔸 Dólar (AwesomeAPI)
-      try {
-        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const usdData = await usdResponse.json();
-        const usd = parseFloat(usdData.USDBRL.bid);
-
-        document.getElementById('usd-brl').innerHTML = gerarHTMLComIcone('Dólar (USD/BRL)', usd.toFixed(2), cotacoesAnteriores.usdBrl, 'R$');
-
-        cotacoesAnteriores.usdBrl = usd;
-      } catch (error) {
-        console.error('Erro Dólar:', error);
-        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
-      }
-
-      // 🔸 IFIX (Alpha Vantage)
-      try {
-        const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
-        const ifixData = await ifixResp.json();
-        const ultimoDia = Object.keys(ifixData['Time Series (Daily)'])[0];
-        const valorIfix = parseFloat(ifixData['Time Series (Daily)'][ultimoDia]['4. close']).toFixed(2);
-
-        document.getElementById('ifix').innerHTML = gerarHTMLComIcone('IFIX', valorIfix, cotacoesAnteriores.ifix, '');
-
-        cotacoesAnteriores.ifix = valorIfix;
-      } catch (error) {
-        console.error('Erro IFIX:', error);
-        document.getElementById('ifix').innerText = 'IFIX: erro ou símbolo inválido';
-      }
+      cotacoesAnteriores.btcUsd = btcUsd;
+      cotacoesAnteriores.btcBrl = btcBrl;
+    } catch (error) {
+      console.error('Erro Bitcoin:', error);
     }
 
-    // 🔄 Executa ao carregar e atualiza a cada 5 minutos
-    fetchCotacoes();
-    setInterval(fetchCotacoes, 300000);
-  </script>
-</body>
-</html>
+    try {
+      // 🔸 Dólar
+      const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+      const usdData = await usdResponse.json();
+      const usd = parseFloat(usdData.USDBRL.bid);
+
+      document.getElementById('usd-brl').innerHTML = gerarHTMLComIcone('Dólar (USD/BRL)', usd.toFixed(2), cotacoesAnteriores.usdBrl, 'R$');
+
+      cotacoesAnteriores.usdBrl = usd;
+    } catch (error) {
+      console.error('Erro Dólar:', error);
+    }
+
+    try {
+      // 🔸 IFIX
+      const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
+      const ifixData = await ifixResp.json();
+      const ultimoDia = Object.keys(ifixData['Time Series (Daily)'])[0];
+      const valorIfix = parseFloat(ifixData['Time Series (Daily)'][ultimoDia]['4. close']).toFixed(2);
+
+      document.getElementById('ifix').innerHTML = gerarHTMLComIcone('IFIX', valorIfix, cotacoesAnteriores.ifix, '');
+
+      cotacoesAnteriores.ifix = parseFloat(valorIfix);
+    } catch (error) {
+      console.error('Erro IFIX:', error);
+    }
+
+    // ✅ Salva após buscar
+    salvarCotacoesAnteriores(cotacoesAnteriores);
+  }
+
+  // Executa agora e depois a cada 5 min
+  fetchCotacoes();
+  setInterval(fetchCotacoes, 300000);
+</script>
