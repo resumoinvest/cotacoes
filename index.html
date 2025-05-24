@@ -1,94 +1,140 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cotações Financeiras</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f2f2f2;
-    }
-    h1 {
-      color: #333;
-    }
-    .cotacao {
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .rodape {
-      margin-top: 2em;
-      text-align: center;
-    }
-    .rodape a {
-      display: block;
-      color: blue;
-      text-decoration: none;
-      margin: 5px 0;
-    }
-    .rodape a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1>📈 Cotações Atualizadas</h1>
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.clock import Clock
+import requests
+import sys
+import time
+import webbrowser
 
-  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
-  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
-  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-  <div class="cotacao" id="ifix">IFIX: carregando...</div>
+class BitcoinApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
 
-  <div class="rodape">
-    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">YouTube</a>
-    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">TikTok</a>
-  </div>
+        self.label_logo = Label(
+            text='@Resumo.invest',
+            font_size='36sp',
+            bold=True,
+            color=(0, 0.6, 0, 1),
+            halign='center',
+            valign='middle'
+        )
 
-  <script>
-    const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
+        self.label_brl = Label(font_size='20sp', halign='center', valign='middle')
+        self.label_usd = Label(font_size='20sp', halign='center', valign='middle')
+        self.label_usdbrl = Label(font_size='20sp', halign='center', valign='middle')
+        self.label_ibov = Label(font_size='20sp', halign='center', valign='middle')
+        self.label_ifix = Label(font_size='20sp', halign='center', valign='middle')
+        self.label_status = Label(font_size='14sp', halign='center', valign='middle')
+        self.label_rodape = Label(text="© Leonardo Reis", font_size='12sp', halign='center', valign='middle')
 
-    async function fetchCotacoes() {
-      // Bitcoin (CoinGecko)
-      try {
-        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-        const btcData = await btcResponse.json();
-        document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
-        document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
-      } catch (error) {
-        console.error('Erro Bitcoin:', error);
-        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
-        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
-      }
+        self.labels = [
+            self.label_brl, self.label_usd, self.label_usdbrl,
+            self.label_ibov, self.label_ifix
+        ]
+        for label in [self.label_logo] + self.labels + [self.label_status, self.label_rodape]:
+            label.bind(size=label.setter('text_size'))
 
-      // Dólar (AwesomeAPI)
-      try {
-        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const usdData = await usdResponse.json();
-        const usd = usdData.USDBRL;
-        document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
-      } catch (error) {
-        console.error('Erro Dólar:', error);
-        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
-      }
+        botao_fechar = Button(text="Fechar", font_size='18sp', size_hint=(1, 0.2), background_color=(0.6, 0.6, 0.6, 1))
+        botao_fechar.bind(on_press=self.fechar_app)
 
-      // IFIX (Alpha Vantage)
-      try {
-        const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
-        const ifixData = await ifixResp.json();
-        const ultimoDia = Object.keys(ifixData['Time Series (Daily)'])[0];
-        const valorIfix = parseFloat(ifixData['Time Series (Daily)'][ultimoDia]['4. close']).toFixed(2);
-        document.getElementById('ifix').innerText = `IFIX: ${valorIfix}`;
-      } catch (error) {
-        console.error('Erro IFIX:', error);
-        document.getElementById('ifix').innerText = 'IFIX: erro ou símbolo inválido';
-      }
-    }
+        espaco_apos_botao = Label(text="", size_hint=(1, 0.05))
 
-    fetchCotacoes();
-  </script>
-</body>
-</html>
+        botao_youtube = Button(
+            text="YouTube",
+            font_size='18sp',
+            size_hint=(1, 0.1),
+            background_normal='',
+            background_color=(0, 0, 0, 0),
+            color=(0.2, 0.4, 1, 1)
+        )
+        botao_youtube.bind(on_press=lambda x: self.abrir_link("https://www.youtube.com/@resumo.invest"))
+
+        linha_em_branco = Label(text="", size_hint_y=0.022)  # Aumentei o espaço aqui (antes 0.015)
+
+        botao_tiktok = Button(
+            text="TikTok",
+            font_size='18sp',
+            size_hint=(1, 0.1),
+            background_normal='',
+            background_color=(0, 0, 0, 0),
+            color=(0.2, 0.4, 1, 1)
+        )
+        botao_tiktok.bind(on_press=lambda x: self.abrir_link("https://www.tiktok.com/@resumo.invest"))
+
+        self.layout.add_widget(self.label_logo)
+        for lbl in self.labels:
+            self.layout.add_widget(lbl)
+        self.layout.add_widget(self.label_status)
+        self.layout.add_widget(botao_fechar)
+        self.layout.add_widget(espaco_apos_botao)
+        self.layout.add_widget(botao_youtube)
+        self.layout.add_widget(linha_em_branco)
+        self.layout.add_widget(botao_tiktok)
+        self.layout.add_widget(self.label_rodape)
+
+        self.valores_anteriores = {}
+
+        Clock.schedule_interval(self.atualizar_cotacoes, 60)
+        self.atualizar_cotacoes(0)
+
+        return self.layout
+
+    def atualizar_cotacoes(self, dt):
+        try:
+            btc = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl,usd").json()
+            preco_brl = float(btc['bitcoin']['brl'])
+            preco_usd = float(btc['bitcoin']['usd'])
+
+            dolar = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL").json()
+            preco_usdbrl = float(dolar['USDBRL']['bid'])
+
+            ibov = 126300.45
+            ifix = 3120.23
+
+            cotacoes = {
+                'BTC (BRL)': preco_brl,
+                'BTC (USD)': preco_usd,
+                'USD/BRL': preco_usdbrl,
+                'Ibovespa': ibov,
+                'IFIX': ifix,
+            }
+
+            for i, (nome, valor) in enumerate(cotacoes.items()):
+                valor_antigo = self.valores_anteriores.get(nome, valor)
+                if valor > valor_antigo:
+                    seta = '[color=#00FF00]▲[/color]'
+                elif valor < valor_antigo:
+                    seta = '[color=#FF0000]▼[/color]'
+                else:
+                    seta = ''
+
+                if nome in ['BTC (BRL)', 'USD/BRL', 'Ibovespa', 'IFIX']:
+                    valor_formatado = f"R$ {valor:,.2f}"
+                else:
+                    valor_formatado = f"{valor:,.2f}"
+
+                texto = f"{nome}: {valor_formatado} {seta}"
+                self.labels[i].markup = True
+                self.labels[i].text = texto
+
+                self.valores_anteriores[nome] = valor
+
+            self.label_status.text = f"Última atualização: {time.strftime('%H:%M:%S')}"
+
+        except Exception as e:
+            self.label_status.text = f"Erro ao atualizar: {str(e)}"
+
+    def abrir_link(self, url):
+        try:
+            webbrowser.open(url)
+        except:
+            self.label_status.text = "Erro ao abrir link."
+
+    def fechar_app(self, instance):
+        App.get_running_app().stop()
+        sys.exit()
+
+if __name__ == '__main__':
+    BitcoinApp().run()
