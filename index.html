@@ -33,6 +33,9 @@
       margin-top: 1em;
       text-align: center;
     }
+    small {
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -59,20 +62,24 @@
           return;
         }
 
-        const htmlNoticias = dados.data.map(item => `
-          <div style="margin-bottom: 10px;">
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer">
-              👉 ${item.title}
-            </a><br/>
-            <small>${new Date(item.published_at).toLocaleString('pt-BR')}</small>
-          </div>
-        `).join('');
+        const htmlNoticias = dados.data.map(item => {
+          const fonte = item.source || 'Fonte desconhecida';
+          const dataPub = item.published_at ? new Date(item.published_at).toLocaleString('pt-BR') : '';
+          return `
+            <div style="margin-bottom: 10px;">
+              <a href="${item.url}" target="_blank" rel="noopener noreferrer">
+                👉 ${item.title}
+              </a><br/>
+              <small>${fonte} | ${dataPub}</small>
+            </div>
+          `;
+        }).join('');
 
         document.getElementById('noticias').innerHTML = htmlNoticias;
 
       } catch (error) {
         console.error('Erro ao carregar notícias:', error);
-        document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
+        document.getElementById('noticias').innerHTML = `<b>Erro ao carregar notícias:</b> ${error.message}`;
       }
     }
 
