@@ -9,8 +9,6 @@
       font-family: Arial, sans-serif;
       padding: 2em;
       background: #f2f2f2;
-      margin: 0;
-      overflow-x: hidden; /* evita barra de rolagem horizontal */
     }
     h1 {
       color: #333;
@@ -28,44 +26,20 @@
     .rodape {
       margin-top: 2em;
       text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
     }
     .rodape a {
+      display: block;
       color: blue;
       text-decoration: none;
-      margin: 0 10px;
-      white-space: nowrap;
+      margin: 5px 0;
     }
     .rodape a:hover {
       text-decoration: underline;
     }
     #relogio {
+      margin-top: 10px;
       font-weight: bold;
       color: #555;
-      margin-left: 15px;
-      white-space: nowrap;
-    }
-    #infomoney-logo {
-      height: 30px;
-      cursor: pointer;
-      margin-left: 10px;
-      flex-shrink: 0;
-    }
-    @media (max-width: 480px) {
-      .rodape {
-        flex-direction: column;
-        gap: 8px;
-      }
-      #relogio {
-        margin-left: 0;
-      }
-      #infomoney-logo {
-        margin-left: 0;
-      }
     }
   </style>
 </head>
@@ -83,9 +57,6 @@
   <div class="rodape">
     <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
     <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
-    <a href="https://www.infomoney.com.br/" target="_blank" title="Site InfoMoney">
-      <img id="infomoney-logo" src="https://www.infomoney.com.br/wp-content/themes/infomoney/assets/images/logo.png" alt="InfoMoney" />
-    </a>
     <div id="relogio"></div>
   </div>
 
@@ -139,7 +110,7 @@
 
         let todasNoticias = resultados.flatMap(r => r.items);
 
-        // Filtrar por palavras-chave no título e descrição
+        // 🔍 Filtro por palavras-chave no título
         todasNoticias = todasNoticias.filter(noticia => {
           const texto = `${noticia.title} ${noticia.description}`.toLowerCase();
           return palavrasChave.some(palavra => texto.includes(palavra));
