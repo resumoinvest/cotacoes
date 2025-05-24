@@ -36,7 +36,7 @@
   </style>
 </head>
 <body>
-  <h1>📈 Cotações Atualizadas</h1>
+  <h1>📈 @resumo.invest</h1>
 
   <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
@@ -74,19 +74,7 @@
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
 
-      // IFIX (Alpha Vantage)
-      try {
-        const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
-        const ifixData = await ifixResp.json();
-        const ultimoDia = Object.keys(ifixData['Time Series (Daily)'])[0];
-        const valorIfix = parseFloat(ifixData['Time Series (Daily)'][ultimoDia]['4. close']).toFixed(2);
-        document.getElementById('ifix').innerText = `IFIX: ${valorIfix}`;
-      } catch (error) {
-        console.error('Erro IFIX:', error);
-        document.getElementById('ifix').innerText = 'IFIX: erro ou símbolo inválido';
-      }
-    }
-
+      
     fetchCotacoes();
   </script>
 </body>
