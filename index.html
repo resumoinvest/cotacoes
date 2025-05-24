@@ -2,13 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Resumo Invest</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2em;
       background: #f2f2f2;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
     h1 {
       color: #333;
@@ -22,16 +26,37 @@
     }
     h2 {
       color: #444;
+      margin-top: 2em;
+      margin-bottom: 0.5em;
+    }
+    #noticias {
+      background: white;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    #noticias a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    #noticias a:hover {
+      text-decoration: underline;
     }
     .rodape {
-      margin-top: 2em;
+      margin-top: auto;
       text-align: center;
+      padding: 1em 0 0 0;
+      font-size: 0.9em;
+      color: #555;
+      border-top: 1px solid #ccc;
     }
     .rodape a {
-      display: block;
+      display: inline-block;
+      margin: 0 10px;
       color: blue;
       text-decoration: none;
-      margin: 5px 0;
     }
     .rodape a:hover {
       text-decoration: underline;
@@ -41,18 +66,20 @@
       font-weight: bold;
       color: #555;
     }
+    .noticia-item {
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
-
   <h1>📈 @Resumo.invest</h1>
 
   <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
 
-  <h2>📰 Últimas Notícias de Finanças - InfoMoney</h2>
-  <div id="noticias" class="cotacao">Carregando notícias...</div>
+  <h2>📰 Últimas Notícias Financeiras (NewsAPI)</h2>
+  <div id="noticias">Carregando notícias...</div>
 
   <div class="rodape">
     <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
@@ -61,15 +88,16 @@
   </div>
 
   <script>
-    // 🔸 Cotação de Bitcoin e Dólar
+    const NEWS_API_KEY = '9b451b78f75640b9bfc8ceb75dc655cb';
+
+    // Cotação Bitcoin e Dólar
     async function fetchCotacoes() {
       try {
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
         const btcData = await btcResponse.json();
         document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
         document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
-      } catch (error) {
-        console.error('Erro Bitcoin:', error);
+      } catch {
         document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
         document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
       }
@@ -79,67 +107,65 @@
         const usdData = await usdResponse.json();
         const usd = usdData.USDBRL;
         document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
-      } catch (error) {
-        console.error('Erro Dólar:', error);
+      } catch {
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
     }
 
     fetchCotacoes();
 
-    // 🔸 Notícias financeiras InfoMoney via proxy local
+    // Função para carregar notícias filtradas por temas financeiros
     async function carregarNoticias() {
-      const feeds = [
-        'https://www.infomoney.com.br/economia/feed/',
-        'https://www.infomoney.com.br/mercados/feed/',
-        'https://www.infomoney.com.br/imoveis/feed/'
+      // termos de busca: finanças, bolsa, economia, mercado, fundos imobiliários, investimentos, ações
+      const termos = [
+        'economia',
+        'bolsa',
+        'fundos imobiliários',
+        'mercado internacional',
+        'ações',
+        'investimentos',
+        'finanças',
+        'mercado financeiro'
       ];
 
+      // juntando termos numa query com OR
+      const query = termos.join(' OR ');
+
+      const url = `https://newsapi.org/v2/everything?` +
+        `q=${encodeURIComponent(query)}&` +
+        `language=pt&` +
+        `sortBy=publishedAt&` +
+        `pageSize=10&` +
+        `apiKey=${NEWS_API_KEY}`;
+
       try {
-        // Para cada feed, chama o proxy local que busca o feed original
-        const respostas = await Promise.all(feeds.map(feedUrl =>
-          fetch(`http://localhost:3000/proxy-feed?url=${encodeURIComponent(feedUrl)}`).then(r => r.text())
-        ));
+        const response = await fetch(url);
+        const data = await response.json();
 
-        // Parse dos feeds XML para extrair items manualmente (simplificado)
-        let todasNoticias = [];
-        respostas.forEach(xmlString => {
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlString, "application/xml");
-          const items = xmlDoc.querySelectorAll("item");
-          items.forEach(item => {
-            const title = item.querySelector("title")?.textContent || '';
-            const link = item.querySelector("link")?.textContent || '';
-            const pubDate = item.querySelector("pubDate")?.textContent || '';
-            const category = item.querySelector("category")?.textContent || '';
-            todasNoticias.push({ title, link, pubDate, category });
-          });
-        });
+        if(data.status !== 'ok') {
+          document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
+          return;
+        }
 
-        // Filtrar só categorias de finanças relevantes (economia, mercado, bolsa, fundos, imóveis)
-        const categoriasValidas = [
-          'Economia', 'Mercado', 'Bolsa', 'Fundos', 'Imóveis', 'Imobiliário', 'Financeiro', 'Financeira', 'Investimentos', 'Ações', 'Internacional'
-        ];
+        if(data.articles.length === 0) {
+          document.getElementById('noticias').innerText = 'Nenhuma notícia encontrada.';
+          return;
+        }
 
-        todasNoticias = todasNoticias.filter(noticia => {
-          if (!noticia.category) return true; // se não tem categoria, mantém para não perder
-          return categoriasValidas.some(cat => noticia.category.toLowerCase().includes(cat.toLowerCase()));
-        });
-
-        // Ordenar por data (mais recente primeiro)
-        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        // Pegar as 10 primeiras
-        const noticias = todasNoticias.slice(0, 10);
-
-        // Montar HTML das notícias
-        const html = noticias.map(noticia => `
-          <div style="margin-bottom: 10px;">
-            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-              👉 ${noticia.title}
-            </a>
-          </div>
-        `).join('');
+        // Montar lista de notícias
+        const html = data.articles.map(article => {
+          const date = new Date(article.publishedAt);
+          const dateStr = date.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+          return `
+            <div class="noticia-item">
+              <a href="${article.url}" target="_blank" rel="noopener noreferrer" title="${article.description || ''}">
+                👉 ${article.title}
+              </a>
+              <br>
+              <small>${dateStr} - ${article.source.name}</small>
+            </div>
+          `;
+        }).join('');
 
         document.getElementById('noticias').innerHTML = html;
 
@@ -151,7 +177,7 @@
 
     carregarNoticias();
 
-    // 🔸 Relógio com data e hora
+    // Relógio com data e hora atualizados a cada segundo
     function atualizarRelogio() {
       const agora = new Date();
       const data = agora.toLocaleDateString('pt-BR');
@@ -162,6 +188,5 @@
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
   </script>
-
 </body>
 </html>
