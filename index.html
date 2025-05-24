@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resumo Invest</title>
+  <title>Resumo Invest - Notícias Economia</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2em;
       background: #f2f2f2;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      color: #333;
     }
     h1 {
-      color: #333;
+      color: #222;
+      margin-bottom: 1em;
     }
     .cotacao {
       background: white;
@@ -25,60 +23,52 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
     h2 {
-      color: #444;
       margin-top: 2em;
       margin-bottom: 0.5em;
+      color: #444;
     }
     #noticias {
       background: white;
       padding: 1em;
       border-radius: 8px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      max-height: 400px;
+      max-height: 350px;
       overflow-y: auto;
     }
     #noticias a {
-      color: #0066cc;
+      color: #1a0dab;
       text-decoration: none;
     }
     #noticias a:hover {
       text-decoration: underline;
     }
+    .noticia-item {
+      margin-bottom: 1em;
+    }
+    .noticia-data {
+      font-size: 0.85em;
+      color: #666;
+    }
     .rodape {
-      margin-top: auto;
+      margin-top: 2em;
       text-align: center;
-      padding: 1em 0 0 0;
-      font-size: 0.9em;
       color: #555;
-      border-top: 1px solid #ccc;
-    }
-    .rodape a {
-      display: inline-block;
-      margin: 0 10px;
-      color: blue;
-      text-decoration: none;
-    }
-    .rodape a:hover {
-      text-decoration: underline;
     }
     #relogio {
-      margin-top: 10px;
       font-weight: bold;
-      color: #555;
-    }
-    .noticia-item {
-      margin-bottom: 12px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
+
   <h1>📈 @Resumo.invest</h1>
 
   <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
 
-  <h2>📰 Últimas Notícias Financeiras (NewsAPI)</h2>
+  <h2>📰 Últimas Notícias de Economia - Globo</h2>
   <div id="noticias">Carregando notícias...</div>
 
   <div class="rodape">
@@ -88,11 +78,10 @@
   </div>
 
   <script>
-    const NEWS_API_KEY = '9b451b78f75640b9bfc8ceb75dc655cb';
-
-    // Cotação Bitcoin e Dólar
+    // Função para buscar cotações
     async function fetchCotacoes() {
       try {
+        // Bitcoin (CoinGecko)
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
         const btcData = await btcResponse.json();
         document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
@@ -103,6 +92,7 @@
       }
 
       try {
+        // Dólar (AwesomeAPI)
         const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
         const usdData = await usdResponse.json();
         const usd = usdData.USDBRL;
@@ -114,32 +104,13 @@
 
     fetchCotacoes();
 
-    // Função para carregar notícias filtradas por temas financeiros
+    // Função para carregar notícias do feed RSS Globo Economia via rss2json
     async function carregarNoticias() {
-      // termos de busca: finanças, bolsa, economia, mercado, fundos imobiliários, investimentos, ações
-      const termos = [
-        'economia',
-        'bolsa',
-        'fundos imobiliários',
-        'mercado internacional',
-        'ações',
-        'investimentos',
-        'finanças',
-        'mercado financeiro'
-      ];
-
-      // juntando termos numa query com OR
-      const query = termos.join(' OR ');
-
-      const url = `https://newsapi.org/v2/everything?` +
-        `q=${encodeURIComponent(query)}&` +
-        `language=pt&` +
-        `sortBy=publishedAt&` +
-        `pageSize=10&` +
-        `apiKey=${NEWS_API_KEY}`;
+      const rssUrl = 'https://rss.globo.com/economia.xml';
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
       try {
-        const response = await fetch(url);
+        const response = await fetch(apiUrl);
         const data = await response.json();
 
         if(data.status !== 'ok') {
@@ -147,46 +118,36 @@
           return;
         }
 
-        if(data.articles.length === 0) {
-          document.getElementById('noticias').innerText = 'Nenhuma notícia encontrada.';
-          return;
-        }
-
-        // Montar lista de notícias
-        const html = data.articles.map(article => {
-          const date = new Date(article.publishedAt);
-          const dateStr = date.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+        const noticiasHtml = data.items.slice(0,10).map(item => {
+          const date = new Date(item.pubDate);
+          const dataFormatada = date.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
           return `
             <div class="noticia-item">
-              <a href="${article.url}" target="_blank" rel="noopener noreferrer" title="${article.description || ''}">
-                👉 ${article.title}
-              </a>
-              <br>
-              <small>${dateStr} - ${article.source.name}</small>
+              <a href="${item.link}" target="_blank" rel="noopener noreferrer" title="${item.title}">${item.title}</a>
+              <div class="noticia-data">${dataFormatada}</div>
             </div>
           `;
         }).join('');
 
-        document.getElementById('noticias').innerHTML = html;
-
+        document.getElementById('noticias').innerHTML = noticiasHtml;
       } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
         document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
+        console.error('Erro notícias:', error);
       }
     }
 
     carregarNoticias();
 
-    // Relógio com data e hora atualizados a cada segundo
+    // Função para atualizar relógio
     function atualizarRelogio() {
       const agora = new Date();
       const data = agora.toLocaleDateString('pt-BR');
       const hora = agora.toLocaleTimeString('pt-BR');
       document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
     }
-
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
   </script>
+
 </body>
 </html>
