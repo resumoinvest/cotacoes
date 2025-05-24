@@ -9,6 +9,8 @@
       font-family: Arial, sans-serif;
       padding: 2em;
       background: #f2f2f2;
+      margin: 0;
+      overflow-x: hidden; /* evita barra de rolagem horizontal */
     }
     h1 {
       color: #333;
@@ -26,20 +28,44 @@
     .rodape {
       margin-top: 2em;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
     }
     .rodape a {
-      display: block;
       color: blue;
       text-decoration: none;
-      margin: 5px 0;
+      margin: 0 10px;
+      white-space: nowrap;
     }
     .rodape a:hover {
       text-decoration: underline;
     }
     #relogio {
-      margin-top: 10px;
       font-weight: bold;
       color: #555;
+      margin-left: 15px;
+      white-space: nowrap;
+    }
+    #infomoney-logo {
+      height: 30px;
+      cursor: pointer;
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+      .rodape {
+        flex-direction: column;
+        gap: 8px;
+      }
+      #relogio {
+        margin-left: 0;
+      }
+      #infomoney-logo {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
@@ -57,6 +83,9 @@
   <div class="rodape">
     <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
     <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
+    <a href="https://www.infomoney.com.br/" target="_blank" title="Site InfoMoney">
+      <img id="infomoney-logo" src="https://www.infomoney.com.br/wp-content/themes/infomoney/assets/images/logo.png" alt="InfoMoney" />
+    </a>
     <div id="relogio"></div>
   </div>
 
@@ -87,7 +116,7 @@
 
     fetchCotacoes();
 
-    // 🔸 Notícias financeiras InfoMoney com filtro
+    // 🔸 Notícias financeiras InfoMoney
     async function carregarNoticias() {
       const feeds = [
         'https://www.infomoney.com.br/economia/feed/',
@@ -95,14 +124,10 @@
         'https://www.infomoney.com.br/imoveis/feed/'
       ];
 
-      const incluirPalavras = [
-        'bolsa', 'ações', 'fundos', 'mercado', 'dólar', 'economia',
-        'selic', 'ipca', 'inflação', 'juros', 'cdi', 'investimento',
-        'imobiliário', 'bitcoin', 'criptomoeda', 'tesouro', 'petrobras', 'ibovespa'
-      ];
-
-      const excluirPalavras = [
-        'cinema', 'filme', 'música', 'oscar', 'show', 'artista', 'festival', 'entretenimento', 'série'
+      const palavrasChave = [
+        'bolsa', 'mercado', 'ações', 'fundos', 'juros', 'inflação',
+        'selic', 'ipca', 'investimento', 'dólar', 'imóveis', 'commodities',
+        'fed', 'economia', 'nasdaq', 'dow jones', 'ibovespa', 'internacional'
       ];
 
       try {
@@ -114,33 +139,27 @@
 
         let todasNoticias = resultados.flatMap(r => r.items);
 
-        // 🔍 Filtro por palavras-chave
-        const noticiasFiltradas = todasNoticias.filter(noticia => {
-          const titulo = noticia.title.toLowerCase();
-
-          const contemInclusao = incluirPalavras.some(p => titulo.includes(p));
-          const contemExclusao = excluirPalavras.some(p => titulo.includes(p));
-
-          return contemInclusao && !contemExclusao;
+        // Filtrar por palavras-chave no título e descrição
+        todasNoticias = todasNoticias.filter(noticia => {
+          const texto = `${noticia.title} ${noticia.description}`.toLowerCase();
+          return palavrasChave.some(palavra => texto.includes(palavra));
         });
 
-        // Ordenar por data (mais recente primeiro)
-        noticiasFiltradas.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        // Ordenar por data
+        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        // Pegar até 10
-        const noticias = noticiasFiltradas.slice(0, 10);
+        // Pegar as 10 primeiras
+        const noticias = todasNoticias.slice(0, 10);
 
-        const html = noticias.length > 0
-          ? noticias.map(noticia => `
-            <div style="margin-bottom: 10px;">
-              <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-                👉 ${noticia.title}
-              </a>
-            </div>
-          `).join('')
-          : 'Nenhuma notícia relevante no momento.';
+        const html = noticias.map(noticia => `
+          <div style="margin-bottom: 10px;">
+            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
+              👉 ${noticia.title}
+            </a>
+          </div>
+        `).join('');
 
-        document.getElementById('noticias').innerHTML = html;
+        document.getElementById('noticias').innerHTML = html || 'Nenhuma notícia relevante no momento.';
       } catch (error) {
         console.error('Erro ao carregar notícias:', error);
         document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
