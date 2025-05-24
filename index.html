@@ -63,7 +63,6 @@
   <script>
     // 🔸 Cotação de Bitcoin e Dólar
     async function fetchCotacoes() {
-      // Bitcoin (CoinGecko)
       try {
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
         const btcData = await btcResponse.json();
@@ -75,7 +74,6 @@
         document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
       }
 
-      // Dólar (AwesomeAPI)
       try {
         const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
         const usdData = await usdResponse.json();
@@ -89,12 +87,22 @@
 
     fetchCotacoes();
 
-    // 🔸 Notícias financeiras InfoMoney
+    // 🔸 Notícias financeiras InfoMoney com filtro
     async function carregarNoticias() {
       const feeds = [
         'https://www.infomoney.com.br/economia/feed/',
         'https://www.infomoney.com.br/mercados/feed/',
         'https://www.infomoney.com.br/imoveis/feed/'
+      ];
+
+      const incluirPalavras = [
+        'bolsa', 'ações', 'fundos', 'mercado', 'dólar', 'economia',
+        'selic', 'ipca', 'inflação', 'juros', 'cdi', 'investimento',
+        'imobiliário', 'bitcoin', 'criptomoeda', 'tesouro', 'petrobras', 'ibovespa'
+      ];
+
+      const excluirPalavras = [
+        'cinema', 'filme', 'música', 'oscar', 'show', 'artista', 'festival', 'entretenimento', 'série'
       ];
 
       try {
@@ -106,19 +114,31 @@
 
         let todasNoticias = resultados.flatMap(r => r.items);
 
+        // 🔍 Filtro por palavras-chave
+        const noticiasFiltradas = todasNoticias.filter(noticia => {
+          const titulo = noticia.title.toLowerCase();
+
+          const contemInclusao = incluirPalavras.some(p => titulo.includes(p));
+          const contemExclusao = excluirPalavras.some(p => titulo.includes(p));
+
+          return contemInclusao && !contemExclusao;
+        });
+
         // Ordenar por data (mais recente primeiro)
-        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        noticiasFiltradas.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        // Pegar as 10 primeiras
-        const noticias = todasNoticias.slice(0, 10);
+        // Pegar até 10
+        const noticias = noticiasFiltradas.slice(0, 10);
 
-        const html = noticias.map(noticia => `
-          <div style="margin-bottom: 10px;">
-            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-              👉 ${noticia.title}
-            </a>
-          </div>
-        `).join('');
+        const html = noticias.length > 0
+          ? noticias.map(noticia => `
+            <div style="margin-bottom: 10px;">
+              <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
+                👉 ${noticia.title}
+              </a>
+            </div>
+          `).join('')
+          : 'Nenhuma notícia relevante no momento.';
 
         document.getElementById('noticias').innerHTML = html;
       } catch (error) {
