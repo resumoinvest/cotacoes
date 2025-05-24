@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resumo Invest - Notícias Mediastack</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumo Invest</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,28 +13,33 @@
     h1 {
       color: #333;
     }
-    .cotacao, #noticias {
+    .cotacao {
       background: white;
       padding: 1em;
       border-radius: 8px;
       margin-bottom: 1em;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
-    a {
-      color: #1a0dab;
-      text-decoration: none;
+    h2 {
+      color: #444;
     }
-    a:hover {
+    .rodape {
+      margin-top: 2em;
+      text-align: center;
+    }
+    .rodape a {
+      display: block;
+      color: blue;
+      text-decoration: none;
+      margin: 5px 0;
+    }
+    .rodape a:hover {
       text-decoration: underline;
     }
     #relogio {
+      margin-top: 10px;
       font-weight: bold;
       color: #555;
-      margin-top: 1em;
-      text-align: center;
-    }
-    small {
-      color: #666;
     }
   </style>
 </head>
@@ -42,47 +47,89 @@
 
   <h1>📈 @Resumo.invest</h1>
 
+  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
+  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
+  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
+
+  <h2>📰 Últimas Notícias de Finanças - InfoMoney</h2>
   <div id="noticias" class="cotacao">Carregando notícias...</div>
 
-  <div id="relogio"></div>
+  <div class="rodape">
+    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
+    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
+    <div id="relogio"></div>
+  </div>
 
   <script>
-    const API_KEY = 'a48bb9c15a858fc6857035d9fdc9e4a9';
-
-    async function carregarNoticias() {
-      const url = `https://api.mediastack.com/v1/news?access_key=${API_KEY}&languages=pt&categories=business,finance&sort=published_desc&limit=10`;
-
+    // 🔸 Cotação de Bitcoin e Dólar
+    async function fetchCotacoes() {
+      // Bitcoin (CoinGecko)
       try {
-        const resposta = await fetch(url);
-        if (!resposta.ok) throw new Error(`HTTP error! status: ${resposta.status}`);
-        const dados = await resposta.json();
-
-        if (!dados.data || dados.data.length === 0) {
-          document.getElementById('noticias').innerText = 'Nenhuma notícia encontrada.';
-          return;
-        }
-
-        const htmlNoticias = dados.data.map(item => {
-          const fonte = item.source || 'Fonte desconhecida';
-          const dataPub = item.published_at ? new Date(item.published_at).toLocaleString('pt-BR') : '';
-          return `
-            <div style="margin-bottom: 10px;">
-              <a href="${item.url}" target="_blank" rel="noopener noreferrer">
-                👉 ${item.title}
-              </a><br/>
-              <small>${fonte} | ${dataPub}</small>
-            </div>
-          `;
-        }).join('');
-
-        document.getElementById('noticias').innerHTML = htmlNoticias;
-
+        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
+        const btcData = await btcResponse.json();
+        document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
+        document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
       } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
-        document.getElementById('noticias').innerHTML = `<b>Erro ao carregar notícias:</b> ${error.message}`;
+        console.error('Erro Bitcoin:', error);
+        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
+        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
+      }
+
+      // Dólar (AwesomeAPI)
+      try {
+        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+        const usdData = await usdResponse.json();
+        const usd = usdData.USDBRL;
+        document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
+      } catch (error) {
+        console.error('Erro Dólar:', error);
+        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
     }
 
+    fetchCotacoes();
+
+    // 🔸 Notícias financeiras InfoMoney
+    async function carregarNoticias() {
+      const feeds = [
+        'https://www.infomoney.com.br/economia/feed/',
+        'https://www.infomoney.com.br/mercados/feed/',
+        'https://www.infomoney.com.br/imoveis/feed/'
+      ];
+
+      try {
+        const requisicoes = feeds.map(url =>
+          fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`).then(r => r.json())
+        );
+
+        const resultados = await Promise.all(requisicoes);
+
+        let todasNoticias = resultados.flatMap(r => r.items);
+
+        // Ordenar por data (mais recente primeiro)
+        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        // Pegar as 10 primeiras
+        const noticias = todasNoticias.slice(0, 10);
+
+        const html = noticias.map(noticia => `
+          <div style="margin-bottom: 10px;">
+            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
+              👉 ${noticia.title}
+            </a>
+          </div>
+        `).join('');
+
+        document.getElementById('noticias').innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao carregar notícias:', error);
+        document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
+      }
+    }
+
+    carregarNoticias();
+
+    // 🔸 Relógio com data e hora
     function atualizarRelogio() {
       const agora = new Date();
       const data = agora.toLocaleDateString('pt-BR');
@@ -90,7 +137,6 @@
       document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
     }
 
-    carregarNoticias();
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
   </script>
