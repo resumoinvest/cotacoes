@@ -62,24 +62,33 @@
 
   <script>
     const ALPHA_KEY = 'FPXAVFGEA10XKJHU';
-    let cotacoesAnteriores = {};
+
+    // Armazena os valores anteriores para comparar
+    const cotacoesAnteriores = {
+      btcUsd: null,
+      btcBrl: null,
+      usdBrl: null,
+      ifix: null
+    };
 
     function gerarHTMLComIcone(nome, valorAtual, valorAnterior, simbolo) {
       let direcao = '';
-      if (valorAnterior !== undefined) {
-        if (valorAtual > valorAnterior) {
-          direcao = `<span class="icone alta">🔼</span>`;
-        } else if (valorAtual < valorAnterior) {
-          direcao = `<span class="icone baixa">🔽</span>`;
-        } else {
-          direcao = `<span class="icone">⏺️</span>`;
-        }
+
+      if (valorAnterior === null) {
+        direcao = `<span class="icone">⏺️</span>`; // Primeira vez, sem comparação
+      } else if (valorAtual > valorAnterior) {
+        direcao = `<span class="icone alta">🔼</span>`;
+      } else if (valorAtual < valorAnterior) {
+        direcao = `<span class="icone baixa">🔽</span>`;
+      } else {
+        direcao = `<span class="icone">⏺️</span>`;
       }
+
       return `${direcao} ${nome}: ${simbolo}${valorAtual}`;
     }
 
     async function fetchCotacoes() {
-      // Bitcoin (CoinGecko)
+      // 🔸 Bitcoin (CoinGecko)
       try {
         const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
         const btcData = await btcResponse.json();
@@ -88,7 +97,7 @@
         const btcBrl = btcData.bitcoin.brl;
 
         document.getElementById('btc-usd').innerHTML = gerarHTMLComIcone('Bitcoin (USD)', btcUsd, cotacoesAnteriores.btcUsd, '$');
-        document.getElementById('btc-brl').innerHTML = gerarHTMLComIcone('Bitcoin (BRL)', btcBrl, cotacoesAnteriores.btcBrl, 'R$');
+        document.getElementById('btc-brl').innerHTML = gerarHTMLComIcone('Bitcoin (BRL)', btcBrl.toLocaleString('pt-BR'), cotacoesAnteriores.btcBrl, 'R$');
 
         cotacoesAnteriores.btcUsd = btcUsd;
         cotacoesAnteriores.btcBrl = btcBrl;
@@ -98,7 +107,7 @@
         document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
       }
 
-      // Dólar (AwesomeAPI)
+      // 🔸 Dólar (AwesomeAPI)
       try {
         const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
         const usdData = await usdResponse.json();
@@ -112,7 +121,7 @@
         document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
       }
 
-      // IFIX (Alpha Vantage)
+      // 🔸 IFIX (Alpha Vantage)
       try {
         const ifixResp = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IFIX.SA&apikey=${ALPHA_KEY}`);
         const ifixData = await ifixResp.json();
@@ -128,8 +137,9 @@
       }
     }
 
+    // 🔄 Executa ao carregar e atualiza a cada 5 minutos
     fetchCotacoes();
-    setInterval(fetchCotacoes, 300000); // Atualiza a cada 5 minutos
+    setInterval(fetchCotacoes, 300000);
   </script>
 </body>
 </html>
