@@ -51,7 +51,7 @@
   <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
   <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
 
-  <h2>📰 Últimas Notícias - InfoMoney</h2>
+  <h2>📰 Últimas Notícias de Finanças - InfoMoney</h2>
   <div id="noticias" class="cotacao">Carregando notícias...</div>
 
   <div class="rodape">
@@ -89,12 +89,28 @@
 
     fetchCotacoes();
 
-    // 🔸 Notícias do InfoMoney
+    // 🔸 Notícias financeiras InfoMoney
     async function carregarNoticias() {
+      const feeds = [
+        'https://www.infomoney.com.br/economia/feed/',
+        'https://www.infomoney.com.br/mercados/feed/',
+        'https://www.infomoney.com.br/imoveis/feed/'
+      ];
+
       try {
-        const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.infomoney.com.br/feed/');
-        const data = await response.json();
-        const noticias = data.items.slice(0, 5); // Pega as 5 primeiras
+        const requisicoes = feeds.map(url =>
+          fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`).then(r => r.json())
+        );
+
+        const resultados = await Promise.all(requisicoes);
+
+        let todasNoticias = resultados.flatMap(r => r.items);
+
+        // Ordenar por data (mais recente primeiro)
+        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        // Pegar as 10 primeiras
+        const noticias = todasNoticias.slice(0, 10);
 
         const html = noticias.map(noticia => `
           <div style="margin-bottom: 10px;">
