@@ -1,145 +1,117 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resumo Invest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Problemas - Clube Nissan Táxi</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f2f2f2;
+      font-family: sans-serif;
+      background-color: #f4f4f5;
+      padding: 20px;
+      margin: 0;
+      max-width: 960px;
+      margin: auto;
     }
     h1 {
-      color: #333;
-    }
-    .cotacao {
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #444;
-    }
-    .rodape {
-      margin-top: 2em;
-      text-align: center;
-    }
-    .rodape a {
-      display: block;
-      color: blue;
-      text-decoration: none;
-      margin: 5px 0;
-    }
-    .rodape a:hover {
-      text-decoration: underline;
-    }
-    #relogio {
-      margin-top: 10px;
+      font-size: 1.8em;
       font-weight: bold;
-      color: #555;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .card p {
+      margin: 4px 0;
+    }
+    .strong {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-
-  <h1>📈 @Resumo.invest</h1>
-
-  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
-  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
-  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-
-  <h2>📰 Últimas Notícias de Finanças - InfoMoney</h2>
-  <div id="noticias" class="cotacao">Carregando notícias...</div>
-
-  <div class="rodape">
-    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
-    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
-    <div id="relogio"></div>
-  </div>
+  <h1>Relatório de Problemas - Clube Nissan Táxi</h1>
+  <input type="text" id="busca" placeholder="Buscar por descrição, km, contato ou trecho..." onkeyup="filtrarProblemas()" />
+  <div id="resultados"></div>
 
   <script>
-    // 🔸 Cotação de Bitcoin e Dólar
-    async function fetchCotacoes() {
-      // Bitcoin (CoinGecko)
-      try {
-        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-        const btcData = await btcResponse.json();
-        document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
-        document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
-      } catch (error) {
-        console.error('Erro Bitcoin:', error);
-        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
-        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
+    const problemas = [
+      {
+        numero: 1,
+        descricao: "Revisão geral cara",
+        km: "80.000 km",
+        citacao: "Na San Diego estão cobrando 1.727,00",
+        contato: "+55 21 96440-5650",
+        solucao: "Não"
+      },
+      {
+        numero: 6,
+        descricao: "Troca de pastilha",
+        km: "34.500 km",
+        citacao: "Meu carro tá com 34.500km... minha pastilha já está abrindo o bico",
+        contato: "+55 21 97990-9074",
+        solucao: "Não"
+      },
+      {
+        numero: 12,
+        descricao: "Borracha da porta rasgada",
+        km: "10.000 km",
+        citacao: "A minha borracha com 10000 rasgou e não trocaram… colei com cola de sapateiro",
+        contato: "Paulo",
+        solucao: "Não"
+      },
+      {
+        numero: 17,
+        descricao: "Barulho na mala",
+        km: "—",
+        citacao: "Barulho na mala… resolvi com pedaço de câmara de ar e fita isolante",
+        contato: "Carlos",
+        solucao: "Sim"
       }
+    ];
 
-      // Dólar (AwesomeAPI)
-      try {
-        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const usdData = await usdResponse.json();
-        const usd = usdData.USDBRL;
-        document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
-      } catch (error) {
-        console.error('Erro Dólar:', error);
-        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
-      }
+    function renderizar(lista) {
+      const container = document.getElementById('resultados');
+      container.innerHTML = '';
+      lista.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <p><span class="strong">#${p.numero}</span> - ${p.descricao}</p>
+          <p><span class="strong">KM:</span> ${p.km}</p>
+          <p><span class="strong">Citação:</span> "${p.citacao}"</p>
+          <p><span class="strong">Relatado por:</span> ${p.contato}</p>
+          <p><span class="strong">Solução:</span> ${p.solucao}</p>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    fetchCotacoes();
-
-    // 🔸 Notícias financeiras InfoMoney
-    async function carregarNoticias() {
-      const feeds = [
-        'https://www.infomoney.com.br/economia/feed/',
-        'https://www.infomoney.com.br/mercados/feed/',
-        'https://www.infomoney.com.br/imoveis/feed/'
-      ];
-
-      try {
-        const requisicoes = feeds.map(url =>
-          fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`).then(r => r.json())
-        );
-
-        const resultados = await Promise.all(requisicoes);
-
-        let todasNoticias = resultados.flatMap(r => r.items);
-
-        // Ordenar por data (mais recente primeiro)
-        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        // Pegar as 10 primeiras
-        const noticias = todasNoticias.slice(0, 10);
-
-        const html = noticias.map(noticia => `
-          <div style="margin-bottom: 10px;">
-            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-              👉 ${noticia.title}
-            </a>
-          </div>
-        `).join('');
-
-        document.getElementById('noticias').innerHTML = html;
-      } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
-        document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
-      }
+    function filtrarProblemas() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      const filtrados = problemas.filter(p =>
+        p.descricao.toLowerCase().includes(busca) ||
+        p.km.includes(busca) ||
+        p.contato.toLowerCase().includes(busca) ||
+        p.citacao.toLowerCase().includes(busca)
+      );
+      renderizar(filtrados);
     }
 
-    carregarNoticias();
-
-    // 🔸 Relógio com data e hora
-    function atualizarRelogio() {
-      const agora = new Date();
-      const data = agora.toLocaleDateString('pt-BR');
-      const hora = agora.toLocaleTimeString('pt-BR');
-      document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
-    }
-
-    setInterval(atualizarRelogio, 1000);
-    atualizarRelogio();
+    // Carregar todos inicialmente
+    renderizar(problemas);
   </script>
-
 </body>
 </html>
