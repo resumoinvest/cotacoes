@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<title>Relatório Interativo - Clube Nissan Táxi</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; max-width: 900px; margin: auto; }
+    h1 { text-align: center; background: #ffcc00; color: white; padding: 15px; border-radius: 6px; }
+    .relato { background: white; padding: 15px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .titulo { font-weight: bold; background: #e0e0e0; padding: 8px; border-radius: 4px; margin-bottom: 8px; }
+    .label { font-weight: bold; }
+    .solucao-sim { color: green; }
+    .solucao-nao { color: red; }
+    textarea { width: 100%; height: 80px; font-size: 1em; margin-top: 8px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    .botoes { margin-top: 6px; display: flex; gap: 10px; }
+    button { padding: 6px 12px; font-size: 0.9em; border: none; background: #ffcc00; color: white; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #d4aa00; }
+    .btn-clear { background: #777; }
+    .btn-clear:hover { background: #999; }
+    .obs-salva { margin-top: 8px; background: #f0f8ff; padding: 10px; border-left: 4px solid #0077cc; border-radius: 4px; }
+    .footer-btn { text-align: center; margin-top: 30px; }
+  </style>
+</head>
+<body>
+<div class="login-box" id="login-box" style="max-width:500px;margin:30px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);text-align:center;">
+<h2>Acesso Restrito</h2>
+<input id="usuario" placeholder="Usuário" style="width:100%;padding:10px;margin:10px 0;" type="text"/>
+<input id="senha" placeholder="Senha" style="width:100%;padding:10px;margin:10px 0;" type="password"/>
+<button onclick="verificarLogin()" style="padding:10px 20px;background:#ffcc00;color:#000;border:none;border-radius:6px;">Entrar</button>
+<p id="erro" style="color:red;"></p>
+</div><div id="conteudo" style="display:none;"><div class="logo-container" style="text-align:center; margin-bottom: 20px;"><img alt="Logo Clube Nissan Táxi" src="WhatsApp Image 2025-05-29 at 00.54.15.jpeg" style="max-height: 100px; border-radius: 10px;"/></div><h1>Relatório de Problemas - Clube Nissan Táxi</h1><div class="relato" id="relato-1">
+<div class="titulo">1. Custo elevado na revisão de 80.000 km na concessionária San Diego</div>
+<p><span class="label">KM:</span> 80.000 km</p>
+<p><span class="label">Citação:</span> "Na San Diego estão cobrando 1.727,00"</p>
+<p><span class="label">Relatado por:</span> +55 21 96440-5650</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-1"></div>
+<textarea id="obs-1" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(1)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(1)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-2">
+<div class="titulo">2. Comparação de preço: revisão de 80.000 km por valor reduzido</div>
+<p><span class="label">KM:</span> 80.000 km</p>
+<p><span class="label">Citação:</span> "Minha revisão de 80 mil foi 260 reais 😂"</p>
+<p><span class="label">Relatado por:</span> +55 21 96440-5650</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-2"></div>
+<textarea id="obs-2" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(2)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(2)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-3">
+<div class="titulo">3. Revisão de 20.000 km com troca de óleo e filtros</div>
+<p><span class="label">KM:</span> 20.000 km</p>
+<p><span class="label">Citação:</span> "Revisão de 20.000km r$ 921.00"</p>
+<p><span class="label">Relatado por:</span> +55 21 96486-0343</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-3"></div>
+<textarea id="obs-3" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(3)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(3)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-4">
+<div class="titulo">4. Revisão de 30.000 km realizada na Nissan Recreio</div>
+<p><span class="label">KM:</span> 30.000 km</p>
+<p><span class="label">Citação:</span> "Revisão de 30.000 km na nissan recreio"</p>
+<p><span class="label">Relatado por:</span> +55 21 97147-4467</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-4"></div>
+<textarea id="obs-4" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(4)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(4)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-5">
+<div class="titulo">5. Revisão de 40.000 km com troca de filtros de cabine e motor</div>
+<p><span class="label">KM:</span> 40.000 km</p>
+<p><span class="label">Citação:</span> "Revisão de 40.000km( + filtro cabine e filtro motor)"</p>
+<p><span class="label">Relatado por:</span> +55 21 97147-4467</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-5"></div>
+<textarea id="obs-5" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(5)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(5)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-6">
+<div class="titulo">6. Desgaste precoce da pastilha de freio aos 34.500 km</div>
+<p><span class="label">KM:</span> 34.500 km</p>
+<p><span class="label">Citação:</span> "Meu carro tá com 34.500km... minha pastilha já está abrindo o bico"</p>
+<p><span class="label">Relatado por:</span> +55 21 97990-9074</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-6"></div>
+<textarea id="obs-6" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(6)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(6)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-7">
+<div class="titulo">7. Intervalo médio relatado para troca de pastilhas: 50.000 km</div>
+<p><span class="label">KM:</span> 50.000 km</p>
+<p><span class="label">Citação:</span> "A cada 50000 km trocava , nunca deu problema foi embora com 245000 km"</p>
+<p><span class="label">Relatado por:</span> +55 21 96435-0720</p>
+<p><span class="label">Solução:</span> <span class="">—</span></p>
+<div id="resposta-7"></div>
+<textarea id="obs-7" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(7)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(7)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-8">
+<div class="titulo">8. Troca de óleo da transmissão aos 70.000 km no primeiro Kicks</div>
+<p><span class="label">KM:</span> 70.000 km</p>
+<p><span class="label">Citação:</span> "Fiquei até janeiro desse ano…troquei na época com 70.000km"</p>
+<p><span class="label">Relatado por:</span> +55 21 98013-8180</p>
+<p><span class="label">Solução:</span> <span class="">—</span></p>
+<div id="resposta-8"></div>
+<textarea id="obs-8" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(8)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(8)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-9">
+<div class="titulo">9. Vida útil estimada do óleo da transmissão CVT: troca aos 120.000 km</div>
+<p><span class="label">KM:</span> 120.000 km</p>
+<p><span class="label">Citação:</span> "Trocou a primeira com 120.000km…"</p>
+<p><span class="label">Relatado por:</span> +55 21 98013-8180</p>
+<p><span class="label">Solução:</span> <span class="">—</span></p>
+<div id="resposta-9"></div>
+<textarea id="obs-9" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(9)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(9)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-10">
+<div class="titulo">10. Problema no cabeçote relacionado ao uso de GNV</div>
+<p><span class="label">KM:</span> 75.000 km</p>
+<p><span class="label">Citação:</span> "Fiz cabeçote com 75000 km, acusou problema com gás"</p>
+<p><span class="label">Relatado por:</span> +55 21 98013-8180</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-10"></div>
+<textarea id="obs-10" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(10)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(10)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-11">
+<div class="titulo">11. Defeito na bucha da barra estabilizadora e mola traseira</div>
+<p><span class="label">KM:</span> 70.000 km</p>
+<p><span class="label">Citação:</span> "Problema na bucha da barra estabilizadora e na mola traseira"</p>
+<p><span class="label">Relatado por:</span> +55 21 98013-8180</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-11"></div>
+<textarea id="obs-11" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(11)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(11)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-12">
+<div class="titulo">12. Borracha da porta rasgada com apenas 10.000 km</div>
+<p><span class="label">KM:</span> 10.000 km</p>
+<p><span class="label">Citação:</span> "A minha borracha com 10000 rasgou e não trocaram… colei com cola de sapateiro"</p>
+<p><span class="label">Relatado por:</span> Paulo</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-12"></div>
+<textarea id="obs-12" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(12)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(12)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-13">
+<div class="titulo">13. Soleira plástica se soltando com uso comum dos passageiros</div>
+<p><span class="label">KM:</span> —</p>
+<p><span class="label">Citação:</span> "Passageiro ao sair meteu o pé e arrancou… sempre um dava uma pancada e soltava"</p>
+<p><span class="label">Relatado por:</span> Carlos</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-13"></div>
+<textarea id="obs-13" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(13)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(13)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-14">
+<div class="titulo">14. Multimídia com variação automática de volume</div>
+<p><span class="label">KM:</span> —</p>
+<p><span class="label">Citação:</span> "Multimídia aumentando e diminuindo o áudio por conta própria"</p>
+<p><span class="label">Relatado por:</span> João</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-14"></div>
+<textarea id="obs-14" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(14)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(14)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-15">
+<div class="titulo">15. Dificuldade para fechar o capô com o carro 0 km</div>
+<p><span class="label">KM:</span> 0 km</p>
+<p><span class="label">Citação:</span> "Tinha que deixar cair quase 1 metro pra fechar"</p>
+<p><span class="label">Relatado por:</span> André</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-15"></div>
+<textarea id="obs-15" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(15)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(15)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-16">
+<div class="titulo">16. Sensor do cinto de segurança disparando indevidamente</div>
+<p><span class="label">KM:</span> —</p>
+<p><span class="label">Citação:</span> "Meu carro está disparando o alarme do cinto de segurança toda hora com ou sem PS"</p>
+<p><span class="label">Relatado por:</span> Marcelo</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-16"></div>
+<textarea id="obs-16" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(16)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(16)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-17">
+<div class="titulo">17. Barulho na mala resolvido com solução improvisada</div>
+<p><span class="label">KM:</span> —</p>
+<p><span class="label">Citação:</span> "Barulho na mala… resolvi com pedaço de câmara de ar e fita isolante"</p>
+<p><span class="label">Relatado por:</span> Carlos</p>
+<p><span class="label">Solução:</span> <span class="solucao-sim">Sim</span></p>
+<div id="resposta-17"></div>
+<textarea id="obs-17" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(17)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(17)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-18">
+<div class="titulo">18. Volume do som abaixando sozinho</div>
+<p><span class="label">KM:</span> —</p>
+<p><span class="label">Citação:</span> "O som abaixando sozinho direto"</p>
+<p><span class="label">Relatado por:</span> João</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-18"></div>
+<textarea id="obs-18" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(18)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(18)">Limpar</button>
+</div>
+</div><div class="relato" id="relato-19">
+<div class="titulo">19. Luz da injeção acendendo logo após retirada do veículo da loja</div>
+<p><span class="label">KM:</span> 0 km</p>
+<p><span class="label">Citação:</span> "Saiu 0km da loja com injeção… andei 1 km, abasteci e xau"</p>
+<p><span class="label">Relatado por:</span> André</p>
+<p><span class="label">Solução:</span> <span class="solucao-nao">Não</span></p>
+<div id="resposta-19"></div>
+<textarea id="obs-19" placeholder="Escreva sua observação..."></textarea>
+<div class="botoes">
+<button onclick="salvarObservacao(19)">Salvar observação</button>
+<button class="btn-clear" onclick="limparObservacao(19)">Limpar</button>
+</div>
+</div><div class="footer-btn">
+<button onclick="salvarPagina()">💾 Salvar página com observações (.html)</button>
+</div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function salvarObservacao(id) {
+    const texto = document.getElementById('obs-' + id).value;
+    const resposta = document.getElementById('resposta-' + id);
+    if (texto.trim() !== "") {
+      resposta.innerHTML = '<div class="obs-salva"><strong>Observação salva:</strong> ' + texto + '</div>';
+    } else {
+      resposta.innerHTML = '';
+    }
+  }
+
+  function limparObservacao(id) {
+    document.getElementById('obs-' + id).value = '';
+    document.getElementById('resposta-' + id).innerHTML = '';
+  }
+
+  function salvarPagina() {
+    for (let i = 1; i <= 50; i++) {
+      try {
+        const texto = document.getElementById('obs-' + i).value;
+        const resposta = document.getElementById('resposta-' + i);
+        if (texto && resposta) {
+          resposta.innerHTML = '<div class="obs-salva"><strong>Observação salva:</strong> ' + texto + '</div>';
+        }
+      } catch (e) {}
+    }
+    const html = document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'relatorio_clube_nissan_com_observacoes.html';
+    link.click();
+  }
+</script>
+<script>
+function verificarLogin() {
+  const u = document.getElementById('usuario').value.trim();
+  const s = document.getElementById('senha').value.trim();
+  if (u === 'taxikicks' && s === '12345678') {
+    document.getElementById('login-box').style.display = 'none';
+    document.getElementById('conteudo').style.display = 'block';
+  } else {
+    document.getElementById('erro').innerText = 'Usuário ou senha incorretos.';
+  }
+}
+</script></body>
+</html>
+<div class="relato" id="novo-relato">
+<div class="titulo">Novo Relato de Problema</div>
+<p><label class="label">Descrição do problema:</label><br/>
+<input id="novo-desc" placeholder="Ex: Barulho ao esterçar com o carro parado" style="width:100%; padding:8px; margin-top:4px;" type="text"/>
+</p>
+<p><label class="label">KM:</label><br/>
+<input id="novo-km" placeholder="Ex: 65.300 km" style="width:100%; padding:8px; margin-top:4px;" type="text"/>
+</p>
+<p><label class="label">Citação literal do grupo ou relato:</label><br/>
+<textarea id="novo-citacao" style="width:100%; height:80px;"></textarea>
+</p>
+<p><label class="label">Relatado por (nome ou telefone):</label><br/>
+<input id="novo-contato" placeholder="Ex: +55 21 99999-0000 ou João da Silva" style="width:100%; padding:8px; margin-top:4px;" type="text"/>
+</p>
+<p><label class="label">Solução encontrada:</label><br/>
+<select id="novo-solucao" style="width:100%; padding:8px; margin-top:4px;">
+<option value="">Selecione...</option>
+<option value="Sim">Sim</option>
+<option value="Não">Não</option>
+<option value="—">Não informado</option>
+</select>
+</p>
+<button onclick="salvarPagina()">💾 Salvar página com o novo relato</button>
+</div>
