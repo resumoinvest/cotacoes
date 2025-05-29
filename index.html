@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Projeto Táxi - Clube Nissan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .login-container, .main-container {
+      margin-top: 60px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      max-width: 320px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #004080;
+    }
+    img.logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      width: 80px;
+    }
+    input[type="text"], input[type="password"], input[type="search"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background: #004080;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #0066cc;
+    }
+    .hidden {
+      display: none;
+    }
+    .bloco-relato {
+      background: #fff;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container" id="login-screen">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Nissan_logo.svg/2560px-Nissan_logo.svg.png" class="logo" alt="Logo">
+    <h1>Login</h1>
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+    <button onclick="fazerLogin()">Entrar</button>
+    <p id="erro-login" style="color: red; text-align: center;"></p>
+  </div>
+
+  <div class="main-container hidden" id="main-screen">
+    <h1>Bem-vindo!</h1>
+    <button onclick="mostrarAdicionar()">➕ Adicionar</button>
+    <button onclick="mostrarPesquisa()">🔍 Pesquisar</button>
+    <button onclick="abrirTodas()">📄 Abrir todas</button>
+
+    <div id="add-form" class="hidden bloco-relato">
+      <h2>Novo Relato</h2>
+      <input type="text" placeholder="Descrição do problema">
+      <input type="text" placeholder="KM">
+      <textarea placeholder="Citação literal do grupo ou relato" style="width:100%; height:80px;"></textarea>
+      <input type="text" placeholder="Relatado por (nome ou telefone)">
+      <select>
+        <option value="">Solução encontrada?</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+        <option value="—">Não informado</option>
+      </select>
+    </div>
+
+    <div id="search-form" class="hidden bloco-relato">
+      <h2>Pesquisar</h2>
+      <input type="search" id="search-text" placeholder="Digite algo...">
+      <button onclick="buscar()">Buscar</button>
+      <div id="resultado-pesquisa"></div>
+    </div>
+  </div>
+
+  <script>
+    function fazerLogin() {
+      const usuario = document.getElementById("usuario").value;
+      const senha = document.getElementById("senha").value;
+      const erro = document.getElementById("erro-login");
+      if (usuario === "taxi" && senha === "123") {
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("main-screen").classList.remove("hidden");
+      } else {
+        erro.textContent = "Usuário ou senha incorretos!";
+      }
+    }
+
+    function mostrarAdicionar() {
+      document.getElementById("add-form").classList.remove("hidden");
+      document.getElementById("search-form").classList.add("hidden");
+    }
+
+    function mostrarPesquisa() {
+      document.getElementById("search-form").classList.remove("hidden");
+      document.getElementById("add-form").classList.add("hidden");
+    }
+
+    function abrirTodas() {
+      window.location.href = "index_com_links.html";
+    }
+
+    function buscar() {
+      const termo = document.getElementById("search-text").value.toLowerCase();
+      const resultado = document.getElementById("resultado-pesquisa");
+      const exemplos = [
+        { id: 1, texto: "Custo elevado na revisão de 80.000 km na concessionária San Diego" },
+        { id: 2, texto: "Comparação de preço: revisão de 80.000 km por valor reduzido" },
+        { id: 3, texto: "Revisão de 20.000 km com troca de óleo e filtros" }
+      ];
+      const encontrados = exemplos.filter(r => r.texto.toLowerCase().includes(termo));
+      if (encontrados.length > 0) {
+        resultado.innerHTML = encontrados.map(r => 
+          `<p><a href="index_com_links.html#relato-${r.id}" target="_blank">${r.texto}</a></p>`
+        ).join("");
+      } else {
+        resultado.innerHTML = "<p>Nenhum relato encontrado.</p>";
+      }
+    }
+  </script>
+
+</body>
+</html>
