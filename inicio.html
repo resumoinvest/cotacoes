@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Início - Projeto Táxi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #004080;
+      font-size: 1.6em;
+      margin-bottom: 24px;
+    }
+    button {
+      display: block;
+      width: 90%;
+      margin: 15px auto;
+      padding: 18px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      background: #004080;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0066cc;
+    }
+    input[type="search"], input[type="text"], textarea, select {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    #search-box, #resultado-pesquisa {
+      margin-top: 20px;
+      text-align: left;
+    }
+    #add-box {
+      margin-top: 20px;
+      text-align: left;
+    }
+    #resultado-pesquisa a {
+      color: #004080;
+      text-decoration: none;
+    }
+    #resultado-pesquisa a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Menu Principal</h1>
+  <button onclick="mostrarAdicionar()">➕ Adicionar</button>
+  <button onclick="mostrarPesquisa()">🔍 Pesquisar</button>
+  <button onclick="abrirTodas()">📄 Abrir todas</button>
+
+  <div id="search-box" style="display:none;">
+    <input type="search" id="search-text" placeholder="Digite algo...">
+    <button onclick="buscar()">Buscar</button>
+    <div id="resultado-pesquisa"></div>
+  </div>
+
+  <div id="add-box" style="display:none;">
+    <h3>Novo Relato</h3>
+    <input type="text" placeholder="Descrição do problema">
+    <input type="text" placeholder="KM">
+    <textarea placeholder="Citação literal"></textarea>
+    <input type="text" placeholder="Relatado por">
+    <select>
+      <option value="">Solução encontrada?</option>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+      <option value="—">Não informado</option>
+    </select>
+  </div>
+
+  <script>
+    const baseUrl = "https://resumoinvest.github.io/cotacoes/";
+
+    function mostrarAdicionar() {
+      document.getElementById("add-box").style.display = "block";
+      document.getElementById("search-box").style.display = "none";
+    }
+
+    function mostrarPesquisa() {
+      document.getElementById("search-box").style.display = "block";
+      document.getElementById("add-box").style.display = "none";
+    }
+
+    function abrirTodas() {
+      window.location.href = baseUrl + "dados.html";
+    }
+
+    function buscar() {
+      const termo = document.getElementById("search-text").value.toLowerCase();
+      const resultado = document.getElementById("resultado-pesquisa");
+      const exemplos = [
+        { id: 1, texto: "Custo elevado na revisão de 80.000 km na concessionária San Diego" },
+        { id: 2, texto: "Comparação de preço: revisão de 80.000 km por valor reduzido" },
+        { id: 3, texto: "Revisão de 20.000 km com troca de óleo e filtros" },
+        { id: 19, texto: "Luz da injeção acendendo logo após retirada do veículo da loja" }
+      ];
+      const encontrados = exemplos.filter(r => r.texto.toLowerCase().includes(termo));
+      if (encontrados.length > 0) {
+        resultado.innerHTML = encontrados.map(r =>
+          `<p><a href='${baseUrl}dados.html#relato-${r.id}'>${r.texto}</a></p>`
+        ).join("");
+      } else {
+        resultado.innerHTML = "<p>Nenhum relato encontrado.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
