@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Projeto Táxi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-container {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-container img {
+      width: 140px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #FFCC00;
+      font-size: 1.8em;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1.1em;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      background: #FFCC00;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+    p {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="logo_taxi.png" alt="Clube Nissan Kicks Táxi">
+    <h2>Login</h2>
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+    <button onclick="fazerLogin()">Entrar</button>
+    <p id="erro-login"></p>
+  </div>
+
+  <script>
+    function fazerLogin() {
+      const usuario = document.getElementById("usuario").value.toLowerCase();
+      const senha = document.getElementById("senha").value;
+      const erro = document.getElementById("erro-login");
+      if (usuario === "taxi" && senha === "123") {
+        window.location.href = "https://resumoinvest.github.io/cotacoes/inicio.html";
+      } else {
+        erro.textContent = "Usuário ou senha incorretos!";
+      }
+    }
+  </script>
+</body>
+</html>
