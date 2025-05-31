@@ -1,145 +1,188 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resumo Invest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ Central - Marcas</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+    :root {
+      --primary-color: #0066cc;
+      --secondary-color: #004a99;
+      --accent-color: #ffcc00;
+      --bg-color: #f5f7fa;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --transition-speed: 0.3s;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f2f2f2;
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    h1 {
-      color: #333;
+
+    header {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
     }
-    .cotacao {
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+    header h1 {
+      font-size: 1.8rem;
     }
-    h2 {
-      color: #444;
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity var(--transition-speed);
+      margin-left: 1rem;
     }
-    .rodape {
-      margin-top: 2em;
+
+    header a:hover {
+      opacity: 0.8;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
       text-align: center;
     }
-    .rodape a {
+
+    main h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .brand-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    .brand-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .brand-card span {
       display: block;
-      color: blue;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    footer {
+      background: var(--secondary-color);
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-buttons a {
+      background-color: #0066cc;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
       text-decoration: none;
-      margin: 5px 0;
-    }
-    .rodape a:hover {
-      text-decoration: underline;
-    }
-    #relogio {
-      margin-top: 10px;
       font-weight: bold;
-      color: #555;
+      transition: background 0.3s;
+    }
+
+    .footer-buttons a.partner {
+      background-color: #ffcc00;
+      color: #000;
+    }
+
+    .footer-buttons a:hover {
+      opacity: 0.85;
+    }
+
+    @media (max-width: 600px) {
+      main h2 {
+        font-size: 1.3rem;
+      }
+
+      .brand-card {
+        padding: 1.2rem 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>FAQ Central</h1>
+    <div>
+      <a href="menu.html">Parceiros</a>
+      <a href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
+    </div>
+  </header>
 
-  <h1>📈 @Resumo.invest</h1>
+  <main>
+    <h2>Escolha uma marca para visualizar perguntas frequentes</h2>
+    <div class="brand-grid">
+      <div class="brand-card" onclick="location.href='faq.html?marca=fiat'">
+        <span>Fiat</span>
+      </div>
+      <div class="brand-card" onclick="location.href='faq.html?marca=chevrolet'">
+        <span>Chevrolet</span>
+      </div>
+      <div class="brand-card" onclick="location.href='faq.html?marca=renault'">
+        <span>Renault</span>
+      </div>
+      <div class="brand-card" onclick="location.href='faq.html?marca=nissan'">
+        <span>Nissan</span>
+      </div>
+    </div>
+  </main>
 
-  <div class="cotacao" id="btc-usd">Bitcoin (USD): carregando...</div>
-  <div class="cotacao" id="btc-brl">Bitcoin (BRL): carregando...</div>
-  <div class="cotacao" id="usd-brl">Dólar (USD/BRL): carregando...</div>
-
-  <h2>📰 Últimas Notícias de Finanças - InfoMoney</h2>
-  <div id="noticias" class="cotacao">Carregando notícias...</div>
-
-  <div class="rodape">
-    <a href="https://www.youtube.com/@Resumo.invest" target="_blank">@Youtube</a>
-    <a href="https://www.tiktok.com/@resumo.invest" target="_blank">@TikTok</a>
-    <div id="relogio"></div>
-  </div>
-
-  <script>
-    // 🔸 Cotação de Bitcoin e Dólar
-    async function fetchCotacoes() {
-      // Bitcoin (CoinGecko)
-      try {
-        const btcResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-        const btcData = await btcResponse.json();
-        document.getElementById('btc-usd').innerText = `Bitcoin (USD): $${btcData.bitcoin.usd}`;
-        document.getElementById('btc-brl').innerText = `Bitcoin (BRL): R$${btcData.bitcoin.brl.toLocaleString('pt-BR')}`;
-      } catch (error) {
-        console.error('Erro Bitcoin:', error);
-        document.getElementById('btc-usd').innerText = 'Bitcoin (USD): erro';
-        document.getElementById('btc-brl').innerText = 'Bitcoin (BRL): erro';
-      }
-
-      // Dólar (AwesomeAPI)
-      try {
-        const usdResponse = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const usdData = await usdResponse.json();
-        const usd = usdData.USDBRL;
-        document.getElementById('usd-brl').innerText = `Dólar (USD/BRL): R$${parseFloat(usd.bid).toFixed(2)}`;
-      } catch (error) {
-        console.error('Erro Dólar:', error);
-        document.getElementById('usd-brl').innerText = 'Dólar (USD/BRL): erro';
-      }
-    }
-
-    fetchCotacoes();
-
-    // 🔸 Notícias financeiras InfoMoney
-    async function carregarNoticias() {
-      const feeds = [
-        'https://www.infomoney.com.br/economia/feed/',
-        'https://www.infomoney.com.br/mercados/feed/',
-        'https://www.infomoney.com.br/imoveis/feed/'
-      ];
-
-      try {
-        const requisicoes = feeds.map(url =>
-          fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`).then(r => r.json())
-        );
-
-        const resultados = await Promise.all(requisicoes);
-
-        let todasNoticias = resultados.flatMap(r => r.items);
-
-        // Ordenar por data (mais recente primeiro)
-        todasNoticias.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        // Pegar as 10 primeiras
-        const noticias = todasNoticias.slice(0, 10);
-
-        const html = noticias.map(noticia => `
-          <div style="margin-bottom: 10px;">
-            <a href="${noticia.link}" target="_blank" style="color:blue; text-decoration:none;">
-              👉 ${noticia.title}
-            </a>
-          </div>
-        `).join('');
-
-        document.getElementById('noticias').innerHTML = html;
-      } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
-        document.getElementById('noticias').innerText = 'Erro ao carregar notícias.';
-      }
-    }
-
-    carregarNoticias();
-
-    // 🔸 Relógio com data e hora
-    function atualizarRelogio() {
-      const agora = new Date();
-      const data = agora.toLocaleDateString('pt-BR');
-      const hora = agora.toLocaleTimeString('pt-BR');
-      document.getElementById('relogio').innerText = `🕒 ${data} ${hora}`;
-    }
-
-    setInterval(atualizarRelogio, 1000);
-    atualizarRelogio();
-  </script>
-
+  <footer>
+    &copy; 2025 FAQ Central. Todos os direitos reservados.
+    <div class="footer-buttons">
+      <a class="partner" href="menu.html">🌟 Parceiros</a>
+      <a href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
+    </div>
+  </footer>
 </body>
 </html>
