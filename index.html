@@ -33,6 +33,7 @@
     }
 
     header {
+  min-height: auto;
       background: var(--primary-color);
       color: #fff;
       padding: 1rem;
@@ -81,6 +82,8 @@
     }
 
     main {
+  padding-top: 0.5rem;
+  padding-bottom: 0;
       flex: 1;
       padding: 1rem;
       display: flex;
@@ -124,6 +127,7 @@
     }
 
     footer {
+  margin-top: 1rem;
       background: var(--primary-color);
       color: #fff;
       text-align: center;
@@ -131,13 +135,28 @@
       font-size: 0.9rem;
       margin-top: 2rem;
     }
-  </style>
+  
+    .destaque {
+      background-color: #ffcc00;
+      color: #000;
+      font-size: 1rem;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid #000;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    </style>
 </head>
 <body>
   <header>
     <div class="header-top">
       <h1>FAQ Central</h1>
-      <a class="partner" href="menu.html">🌟 Parceiros</a>
+      <a class="partner destaque" href="menu.html">🚀 Conheça nossos Parceiros</a>
     </div>
     <div class="header-buttons">
       <a class="pix-button" href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
@@ -154,8 +173,6 @@
     </div>
   </main>
 
-  <footer>
-    © 2025 FAQ Central. Todos os direitos reservados.
-  </footer>
+  
 </body>
 </html>
