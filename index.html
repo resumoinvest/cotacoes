@@ -36,13 +36,15 @@
   header {
     background: var(--primary-color);
     color: #fff;
-    padding: 1rem;
+    padding: 1.2rem 1rem;
     text-align: center;
+    border-bottom: 4px solid var(--accent-color);
   }
 
   header h1 {
     font-size: 2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.5px;
   }
 
   .sub-header {
@@ -55,21 +57,16 @@
   .sub-header a {
     background-color: var(--accent-color);
     color: #000;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
-    transition: opacity var(--transition-speed);
-  }
-
-  .sub-header a:last-child {
-    background-color: #fff;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
+    transition: transform 0.2s, opacity var(--transition-speed);
   }
 
   .sub-header a:hover {
     opacity: 0.8;
+    transform: scale(1.05);
   }
 
   main {
@@ -82,7 +79,7 @@
   }
 
   main h2 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     margin-bottom: 1rem;
   }
 
@@ -96,8 +93,8 @@
 
   .brand-card {
     background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     padding: 1rem;
     cursor: pointer;
     transition: transform var(--transition-speed), box-shadow var(--transition-speed);
@@ -119,23 +116,52 @@
     color: #fff;
     text-align: center;
     padding: 1rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    position: relative;
+  }
+
+  .donate-button {
+    background-color: transparent;
+    color: #000;
+    border: 2px dashed var(--primary-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 0.8rem;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+
+  .donate-button:hover {
+    background-color: rgba(0, 102, 204, 0.1);
+    transform: scale(1.05);
   }
 
   @media (max-width: 600px) {
-    main h2 {
-      font-size: 1.2rem;
-    }
-
-    .brand-grid {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    }
-
     header h1 {
       font-size: 1.6rem;
     }
+
+    main h2 {
+      font-size: 1.3rem;
+    }
+
+    .brand-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 </style>
+<script>
+  function copyPix() {
+    navigator.clipboard.writeText('devfaq@pix.com').then(function() {
+      alert('Chave PIX copiada! PIX: devfaq@pix.com');
+    }, function(err) {
+      alert('Erro ao copiar PIX');
+    });
+  }
+</script>
 </head>
 <body>
 
@@ -143,7 +169,6 @@
   <h1>FAQ Central</h1>
   <div class="sub-header">
     <a href="menu.html">🌟 Parceiros</a>
-    <a href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
   </div>
 </header>
 
@@ -166,7 +191,10 @@
 </main>
 
 <footer>
-  © 2025 FAQ Central. Todos os direitos reservados.
+  © 2025 FAQ Central. Todos os direitos reservados.<br>
+  Este site e seu conteúdo são protegidos por leis de direitos autorais e propriedade intelectual.<br>
+  Reprodução, distribuição ou uso não autorizado é estritamente proibido.<br>
+  <a href="javascript:void(0)" class="donate-button" onclick="copyPix()">💛 Ajude o desenvolvedor</a>
 </footer>
 
 </body>
