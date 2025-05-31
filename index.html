@@ -27,7 +27,7 @@
       font-family: 'Montserrat', sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      min-height: 100vh; overflow: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
@@ -165,7 +165,14 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
-  </style>
+  
+    .fixed-donate-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+    }
+    </style>
   <script>
     function copyPix() {
       navigator.clipboard.writeText('devfaq@pix.com').then(function() {
@@ -204,8 +211,12 @@
 
 <footer>
   © 2025 FAQ Central. Todos os direitos reservados.
+  </footer>
+
+
+<div class="fixed-donate-button">
   <a href="javascript:void(0)" class="donate-button animated" onclick="copyPix()">💛 Ajude o desenvolvedor</a>
-</footer>
+</div>
 
 </body>
 </html>
