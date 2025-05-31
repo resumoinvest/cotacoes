@@ -102,7 +102,6 @@
       color: var(--primary-color);
     }
 
-    footer {
       background: var(--secondary-color);
       color: #fff;
       text-align: center;
@@ -113,7 +112,6 @@
       gap: 0.5rem;
     }
 
-    .footer-buttons {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
@@ -121,7 +119,6 @@
       margin-top: 0.5rem;
     }
 
-    .footer-buttons a {
       background-color: #0066cc;
       color: #fff;
       padding: 0.5rem 1rem;
@@ -131,12 +128,10 @@
       transition: background 0.3s;
     }
 
-    .footer-buttons a.partner {
       background-color: #ffcc00;
       color: #000;
     }
 
-    .footer-buttons a:hover {
       opacity: 0.85;
     }
 
@@ -150,41 +145,95 @@
       }
     }
   
-.destaque {
-  background-color: #ffffff;
-  margin: 1rem auto 2rem auto;
-  padding: 1rem;
-  max-width: 800px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+main {
+  padding-bottom: 1rem;
+}
+
+body {
+  overflow-y: hidden;
+}
+
+main h2 {
   text-align: center;
 }
 
-.destaque h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-  color: var(--primary-color);
+.brand-grid {
+  justify-items: center;
 }
 
-.destaque-banner {
-  background-color: #f0f0f0;
-  padding: 1rem;
+main {
+  min-height: calc(100vh - 140px); /* compensa header e footer */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.brand-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 800px;
+}
+
+  padding: 1.5rem 1rem;
+  flex-shrink: 0;
+}
+
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+  padding: 2rem 1rem 2.5rem 1rem;
+}
+
+.footer-buttons {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.header-buttons {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-buttons a {
+  background-color: #0066cc;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
   border-radius: 6px;
-  font-style: italic;
-  color: #777;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.header-buttons a.partner {
+  background-color: #ffcc00;
+  color: #000;
+}
+
+.header-buttons a:hover {
+  opacity: 0.85;
+}
+footer {
+  background: var(--primary-color);
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem 1rem;
+  font-size: 0.9rem;
 }
 </style>
 </head>
 <body>
 <header>
 <h1>FAQ Central</h1>
-</header>
-<section class="destaque">
-<h3>Parceiros</h3>
-<div class="destaque-banner">
-<span>🛠️ Em Construção</span>
+<div class="header-buttons">
+<a class="partner" href="menu.html">🌟 Parceiros</a>
+<a href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
 </div>
-</section>
+</header>
 <main>
 <h2>Escolha uma marca para visualizar perguntas frequentes</h2>
 <div class="brand-grid">
@@ -204,10 +253,7 @@
 </main>
 <footer>
     © 2025 FAQ Central. Todos os direitos reservados.
-    <div class="footer-buttons">
-<a class="partner" href="menu.html">🌟 Parceiros</a>
-<a href="javascript:void(0)" onclick="alert('Chave PIX copiada! PIX: devfaq@pix.com')">💛 Ajude o desenvolvedor</a>
-</div>
+    
 </footer>
 </body>
 </html>
