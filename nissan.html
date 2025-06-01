@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FAQ Nissan - Firebase Responsivo com Data</title>
+  <title>FAQ Nissan - Firebase com Respostas</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
       padding: 12px;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -52,6 +52,14 @@
       background: #fff;
       border-left: 4px solid #0066cc;
       border-radius: 5px;
+    }
+
+    .resposta {
+      margin-top: 8px;
+      background: #eef4ff;
+      padding: 8px;
+      border-left: 3px solid #0066cc;
+      border-radius: 3px;
     }
 
     .top-bar {
@@ -156,18 +164,46 @@
     return `${dia}/${mes}/${ano} ${hora}:${min}`;
   }
 
+  function adicionarResposta(id) {
+    const resposta = prompt("Digite sua resposta:");
+    if (!resposta) return;
+    const user = localStorage.getItem("faq_user") || "Anônimo";
+    const ref = db.ref(`faq/nissan/${id}/respostas`);
+    ref.once("value", snapshot => {
+      const respostas = snapshot.val() || [];
+      respostas.push(`${user}: ${resposta}`);
+      ref.set(respostas).then(carregarPerguntas);
+    });
+  }
+
   function carregarPerguntas() {
     const lista = document.getElementById('listaPerguntas');
     lista.innerHTML = "Carregando...";
     db.ref("faq/nissan").once("value", snapshot => {
       const dados = snapshot.val() || {};
+      const perguntas = Object.entries(dados);
+      // 🔽 Ordena do mais novo para o mais antigo
+      perguntas.sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+
       lista.innerHTML = "";
-      Object.entries(dados).forEach(([id, item]) => {
+      perguntas.forEach(([id, item]) => {
         const div = document.createElement('div');
         div.className = 'faq-item';
         const dataHora = item.timestamp ? formatarData(item.timestamp) : '';
         div.innerHTML = `<strong>📝 ${item.pergunta}</strong><br>
-        <em>por ${item.autor || "Anônimo"}${dataHora ? ' em ' + dataHora : ''}</em>`;
+        <em>por ${item.autor || "Anônimo"}${dataHora ? ' em ' + dataHora : ''}</em><br>
+        <button onclick="adicionarResposta('${id}')">Responder</button>`;
+
+        // Exibir respostas se houver
+        if (item.respostas && Array.isArray(item.respostas)) {
+          item.respostas.forEach(resp => {
+            const respDiv = document.createElement('div');
+            respDiv.className = 'resposta';
+            respDiv.textContent = "🗨️ " + resp;
+            div.appendChild(respDiv);
+          });
+        }
+
         lista.appendChild(div);
       });
     });
