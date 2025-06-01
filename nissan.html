@@ -1,12 +1,10 @@
-
 <!DOCTYPE html>
-
 <html lang="pt-br">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>FAQ Nissan - Colaborativo</title>
-<style>
+  <meta charset="UTF-8">
+  <title>FAQ Nissan - Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
     body {
       font-family: Arial, sans-serif;
       background: #f5f7fa;
@@ -53,161 +51,151 @@
     .hidden {
       display: none;
     }
-  
-    .delete-btn {
-      float: right;
-      background: none;
-      border: none;
-      color: #999;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .delete-btn:hover {
-      color: red;
-    }
-</style>
+  </style>
 </head>
 <body>
 <h1>FAQ Colaborativo - Nissan</h1>
+
 <div class="login-section" id="loginSection">
-<h3>👤 Identificação</h3>
-<input id="username" placeholder="Nome de usuário" type="text"/>
-<button onclick="login()">Entrar</button>
-<button onclick="loginAnonimo()">Entrar como Anônimo</button></div>
-<div class="hidden" id="mainContent"><button onclick="location.href='index.html'">⬅️ Voltar</button>
-<div class="faq-search">
-<input id="search" oninput="searchFAQ()" placeholder="🔍 Pesquisar perguntas..." type="text"/>
+  <h3>👤 Identificação</h3>
+  <input id="username" placeholder="Nome de usuário" type="text" />
+  <button onclick="login()">Entrar</button>
+  <button onclick="loginAnonimo()">Entrar como Anônimo</button>
 </div>
-<div class="faq-form">
-<h3>Envie sua pergunta</h3>
-<textarea id="question" placeholder="Digite apenas a pergunta"></textarea>
-<button onclick="saveQuestion()">Enviar pergunta</button>
+
+<div class="hidden" id="mainContent">
+  <button onclick="location.href='index.html'">⬅️ Voltar</button>
+  <div class="faq-search">
+    <input id="search" oninput="searchFAQ()" placeholder="🔍 Pesquisar perguntas..." type="text" />
+  </div>
+  <div class="faq-form">
+    <h3>Envie sua pergunta</h3>
+    <textarea id="question" placeholder="Digite apenas a pergunta"></textarea>
+    <button onclick="saveQuestion()">Enviar pergunta</button>
+  </div>
+  <div class="faq-list" id="faqList">
+    <h3>Perguntas Frequentes</h3>
+  </div>
 </div>
-<div class="faq-list" id="faqList">
-<h3>Perguntas Frequentes</h3>
-</div>
-</div>
+
+<!-- ✅ Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
 <script>
-    const bannedWords = ["burro", "idiota", "merda", "porra", "caralho", "fdp", "filho da puta", "imbecil", "bosta"];
+  // ✅ Configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyANXDKp7FAGxq8SGqJmO4Cr_nQ_NsOcLws",
+    authDomain: "autofaq-8b600.firebaseapp.com",
+    databaseURL: "https://autofaq-8b600-default-rtdb.firebaseio.com",
+    projectId: "autofaq-8b600",
+    storageBucket: "autofaq-8b600.appspot.com",
+    messagingSenderId: "199329149495",
+    appId: "1:199329149495:web:e6d5f2a2ba1fac4ce045b2"
+  };
 
-    function containsOffensiveWords(text) {
-      const lower = text.toLowerCase();
-      return bannedWords.some(word => lower.includes(word));
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const bannedWords = ["burro", "idiota", "merda", "porra", "caralho", "fdp", "filho da puta", "imbecil", "bosta"];
+
+  function containsOffensiveWords(text) {
+    const lower = text.toLowerCase();
+    return bannedWords.some(word => lower.includes(word));
+  }
+
+  function login() {
+    const user = document.getElementById('username').value.trim();
+    if (user) {
+      localStorage.setItem('faq_user', user);
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+      loadFAQ();
+    } else {
+      alert("Digite seu nome/apelido para continuar.");
+    }
+  }
+
+  function loginAnonimo() {
+    const nome = "usuário/" + Math.floor(Math.random() * 100000);
+    alert("Você entrou como: " + nome);
+    localStorage.setItem('faq_user', nome);
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('mainContent').classList.remove('hidden');
+    loadFAQ();
+  }
+
+  function saveQuestion() {
+    const q = document.getElementById('question').value.trim();
+    if (!q) {
+      alert("Digite a pergunta.");
+      return;
+    }
+    if (containsOffensiveWords(q)) {
+      alert("⚠️ Sua pergunta contém palavras proibidas.");
+      return;
     }
 
-    function login() {
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value.trim();
-
-      if (user) {
-        localStorage.setItem('faq_user', user);
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
-        loadFAQ();
-      } else {
-        alert("Digite seu nome/apelido para continuar.");
-      }
-    }
-
-    function checkLogin() {
-      const user = localStorage.getItem('faq_user');
-      if (user) {
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
-        loadFAQ();
-      }
-    }
-
-    function saveQuestion() {
-      const q = document.getElementById('question').value.trim();
-      if (!q) {
-        alert("Digite a pergunta.");
-        return;
-      }
-      if (containsOffensiveWords(q)) {
-        alert("⚠️ Sua pergunta contém palavras proibidas e não pode ser enviada.");
-        return;
-      }
-
-      let dados = JSON.parse(localStorage.getItem('faq_nissan_v1') || '[]');
-      dados.push({ id: Date.now(), pergunta: q, respostas: [], autor: localStorage.getItem('faq_user') });
-      localStorage.setItem('faq_nissan_v1', JSON.stringify(dados));
+    const novaRef = db.ref("faq/nissan").push();
+    novaRef.set({
+      pergunta: q,
+      autor: localStorage.getItem('faq_user'),
+      respostas: []
+    }).then(() => {
       document.getElementById('question').value = '';
       loadFAQ();
+    });
+  }
+
+  function addResposta(id) {
+    const r = prompt("Digite sua resposta:");
+    if (!r || containsOffensiveWords(r)) {
+      alert("⚠️ Resposta inválida ou ofensiva.");
+      return;
     }
+    const ref = db.ref("faq/nissan/" + id + "/respostas");
+    ref.once("value", snapshot => {
+      const respostas = snapshot.val() || [];
+      respostas.push(localStorage.getItem("faq_user") + ": " + r);
+      ref.set(respostas).then(loadFAQ);
+    });
+  }
 
-    function addResposta(id) {
-      const resposta = prompt("Digite sua resposta:");
-      if (!resposta || containsOffensiveWords(resposta)) {
-        alert("⚠️ Resposta inválida ou com linguagem proibida.");
-        return;
-      }
-
-      let dados = JSON.parse(localStorage.getItem('faq_nissan_v1') || '[]');
-      const idx = dados.findIndex(item => item.id === id);
-      if (idx >= 0) {
-        dados[idx].respostas.push(localStorage.getItem("faq_user") + ": " + resposta);
-        localStorage.setItem('faq_nissan_v1', JSON.stringify(dados));
-        loadFAQ();
-      }
-    }
-
-    function loadFAQ(filter = '') {
-      const lista = document.getElementById('faqList');
-      lista.innerHTML = '<h3>Perguntas Frequentes</h3>';
-      const dados = JSON.parse(localStorage.getItem('faq_nissan_v1') || '[]');
-
-      dados.filter(item => item.pergunta.toLowerCase().includes(filter)).forEach(item => {
+  function loadFAQ(filter = '') {
+    const lista = document.getElementById('faqList');
+    lista.innerHTML = '<h3>Perguntas Frequentes</h3>';
+    db.ref("faq/nissan").once("value", snapshot => {
+      const dados = snapshot.val() || {};
+      Object.entries(dados).forEach(([id, item]) => {
+        if (!item.pergunta.toLowerCase().includes(filter)) return;
         const div = document.createElement('div');
         div.className = 'faq-item';
-        div.innerHTML = `<strong>P:</strong> ${item.pergunta} <em>por ${item.autor}</em> <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️</button><br><button onclick="addResposta(${item.id})">Responder</button>`;
-        item.respostas.forEach((r, i) => {
+        div.innerHTML = `<strong>P:</strong> ${item.pergunta} <em>por ${item.autor}</em>
+          <br><button onclick="addResposta('${id}')">Responder</button>`;
+        (item.respostas || []).forEach((r, i) => {
           const resp = document.createElement('div');
           resp.className = 'resposta';
-          resp.innerHTML = "🗨️ " + r + '<button class="delete-btn" onclick="deleteItem(' + item.id + ', ' + i + ')">🗑️</button>';
+          resp.innerText = "🗨️ " + r;
           div.appendChild(resp);
         });
         lista.appendChild(div);
       });
-    }
+    });
+  }
 
-    function searchFAQ() {
-      const termo = document.getElementById('search').value.toLowerCase();
-      loadFAQ(termo);
-    }
+  function searchFAQ() {
+    const termo = document.getElementById('search').value.toLowerCase();
+    loadFAQ(termo);
+  }
 
-    window.onload = checkLogin;
-  
-    function loginAnonimo() {
-      const nome = "usuário/" + Math.floor(Math.random() * 100000);
-      alert("Você entrou como: " + nome);
-      localStorage.setItem('faq_user', nome);
+  window.onload = function () {
+    const user = localStorage.getItem('faq_user');
+    if (user) {
       document.getElementById('loginSection').classList.add('hidden');
       document.getElementById('mainContent').classList.remove('hidden');
       loadFAQ();
     }
-
-
-    function deleteItem(id, respostaIndex = null) {
-      const senha = prompt("Senha de administrador:");
-      if (senha !== "@Nono2023") {
-        alert("Senha incorreta.");
-        return;
-      }
-      let dados = JSON.parse(localStorage.getItem('faq_nissan_v1') || '[]');
-      if (respostaIndex === null) {
-        // Apagar pergunta
-        dados = dados.filter(item => item.id !== id);
-      } else {
-        // Apagar resposta
-        const idx = dados.findIndex(item => item.id === id);
-        if (idx >= 0) {
-          dados[idx].respostas.splice(respostaIndex, 1);
-        }
-      }
-      localStorage.setItem('faq_nissan_v1', JSON.stringify(dados));
-      loadFAQ();
-    }
+  };
 </script>
 </body>
 </html>
