@@ -2,79 +2,139 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Teste FAQ Nissan - Firebase com Lista</title>
+  <title>FAQ Nissan - Firebase com Login e Visual Melhorado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 1.1rem;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .faq-item {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .top-bar {
+      margin-bottom: 20px;
+    }
+    .top-bar button {
+      padding: 6px 12px;
+      font-size: 1rem;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .top-bar button:hover {
+      background-color: #004a99;
+    }
+  </style>
 </head>
 <body>
-  <h1>FAQ Nissan - Teste Firebase</h1>
 
+<div class="top-bar">
+  <button onclick="window.location.href='index.html'">⬅️ Voltar</button>
+</div>
+
+<h1>FAQ Nissan - Firebase</h1>
+
+<div id="loginSection">
+  <label for="nome">Digite seu nome para continuar:</label><br>
+  <input type="text" id="nome" placeholder="Seu nome" />
+  <br><br>
+  <button onclick="fazerLogin()">Entrar</button>
+</div>
+
+<div id="faqSection" style="display: none;">
   <label for="pergunta">Digite sua pergunta:</label><br>
   <input type="text" id="pergunta" placeholder="Ex: Qual o consumo do Nissan Versa?" size="50" />
   <br><br>
   <button onclick="salvarPergunta()">Salvar no Firebase</button>
-
   <p id="status"></p>
 
   <h3>Perguntas já salvas:</h3>
   <div id="listaPerguntas"></div>
+</div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyANXDKp7FAGxq8SGqJmO4Cr_nQ_NsOcLws",
-      authDomain: "autofaq-8b600.firebaseapp.com",
-      databaseURL: "https://autofaq-8b600-default-rtdb.firebaseio.com",
-      projectId: "autofaq-8b600",
-      storageBucket: "autofaq-8b600.appspot.com",
-      messagingSenderId: "199329149495",
-      appId: "1:199329149495:web:e6d5f2a2ba1fac4ce045b2"
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyANXDKp7FAGxq8SGqJmO4Cr_nQ_NsOcLws",
+    authDomain: "autofaq-8b600.firebaseapp.com",
+    databaseURL: "https://autofaq-8b600-default-rtdb.firebaseio.com",
+    projectId: "autofaq-8b600",
+    storageBucket: "autofaq-8b600.appspot.com",
+    messagingSenderId: "199329149495",
+    appId: "1:199329149495:web:e6d5f2a2ba1fac4ce045b2"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    function salvarPergunta() {
-      const pergunta = document.getElementById('pergunta').value.trim();
-      if (!pergunta) {
-        alert("Digite uma pergunta antes de salvar.");
-        return;
-      }
+  function fazerLogin() {
+    const nome = document.getElementById("nome").value.trim();
+    if (!nome) {
+      alert("Digite seu nome.");
+      return;
+    }
+    localStorage.setItem("faq_user", nome);
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("faqSection").style.display = "block";
+    carregarPerguntas();
+  }
 
-      const novaRef = db.ref("faq/nissan").push();
-      novaRef.set({
-        pergunta: pergunta,
-        autor: "teste_simples",
-        respostas: []
-      }).then(() => {
-        document.getElementById('status').innerText = "✅ Pergunta salva!";
-        document.getElementById('pergunta').value = "";
-        carregarPerguntas(); // atualiza a lista
-      }).catch((error) => {
-        document.getElementById('status').innerText = "❌ Erro: " + error.message;
-      });
+  function salvarPergunta() {
+    const pergunta = document.getElementById('pergunta').value.trim();
+    const autor = localStorage.getItem("faq_user");
+    if (!pergunta) {
+      alert("Digite uma pergunta antes de salvar.");
+      return;
     }
 
-    function carregarPerguntas() {
-      const lista = document.getElementById('listaPerguntas');
-      lista.innerHTML = "Carregando...";
-      db.ref("faq/nissan").once("value", snapshot => {
-        const dados = snapshot.val() || {};
-        lista.innerHTML = "";
-        Object.values(dados).forEach(item => {
-          const div = document.createElement('div');
-          div.style.margin = "10px 0";
-          div.style.padding = "10px";
-          div.style.border = "1px solid #ccc";
-          div.innerText = "📝 " + item.pergunta;
-          lista.appendChild(div);
-        });
-      });
-    }
+    const novaRef = db.ref("faq/nissan").push();
+    novaRef.set({
+      pergunta: pergunta,
+      autor: autor || "Anônimo",
+      respostas: []
+    }).then(() => {
+      document.getElementById('status').innerText = "✅ Pergunta salva!";
+      document.getElementById('pergunta').value = "";
+      carregarPerguntas();
+    }).catch((error) => {
+      document.getElementById('status').innerText = "❌ Erro: " + error.message;
+    });
+  }
 
-    // Carrega as perguntas ao abrir
-    window.onload = carregarPerguntas;
-  </script>
+  function carregarPerguntas() {
+    const lista = document.getElementById('listaPerguntas');
+    lista.innerHTML = "Carregando...";
+    db.ref("faq/nissan").once("value", snapshot => {
+      const dados = snapshot.val() || {};
+      lista.innerHTML = "";
+      Object.entries(dados).forEach(([id, item]) => {
+        const div = document.createElement('div');
+        div.className = 'faq-item';
+        div.innerHTML = `<strong>📝 ${item.pergunta}</strong><br><em>por ${item.autor || "Anônimo"}</em>`;
+        lista.appendChild(div);
+      });
+    });
+  }
+
+  window.onload = function () {
+    const user = localStorage.getItem("faq_user");
+    if (user) {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("faqSection").style.display = "block";
+      carregarPerguntas();
+    }
+  };
+</script>
 </body>
 </html>
